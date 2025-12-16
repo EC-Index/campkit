@@ -8,14 +8,7 @@ import { Suspense } from 'react'
 type LinkItem = { id: number; destination_url: string; utm_source: string|null; utm_medium: string|null; utm_campaign: string|null; utm_term: string|null; utm_content: string|null; short_code: string|null; title: string|null; clicks: number; created_at: string; team_id: number|null }
 type ClickItem = { id: number; clicked_at: string; ip_address: string; user_agent: string; referer: string }
 type Team = { id: number; name: string; role: string }
-
-const templates = [
-  { name: 'Google Ads', utm_source: 'google', utm_medium: 'cpc', utm_campaign: '' },
-  { name: 'Facebook Ads', utm_source: 'facebook', utm_medium: 'paid_social', utm_campaign: '' },
-  { name: 'Newsletter', utm_source: 'newsletter', utm_medium: 'email', utm_campaign: '' },
-  { name: 'Twitter Post', utm_source: 'twitter', utm_medium: 'social', utm_campaign: '' },
-  { name: 'LinkedIn Post', utm_source: 'linkedin', utm_medium: 'social', utm_campaign: '' },
-]
+type Template = { id: number; name: string; utm_source: string|null; utm_medium: string|null; utm_campaign: string|null; utm_term: string|null; utm_content: string|null; created_by?: string }
 
 function DashboardContent() {
   const { data: session, status } = useSession()
@@ -37,6 +30,12 @@ function DashboardContent() {
   const [linkCount, setLinkCount] = useState(0)
   const [linkLimit, setLinkLimit] = useState<number|null>(50)
   const [error, setError] = useState<string|null>(null)
+  
+  // Templates
+  const [templates, setTemplates] = useState<Template[]>([])
+  const [showSaveTemplate, setShowSaveTemplate] = useState(false)
+  const [templateName, setTemplateName] = useState('')
+  const [savingTemplate, setSavingTemplate] = useState(false)
   
   const [form, setForm] = useState({ 
     destination_url: '', 
@@ -60,6 +59,7 @@ function DashboardContent() {
   useEffect(() => { 
     if (session) {
       fetchLinks()
+      fetchTemplates()
     }
   }, [session, selectedTeamId])
 
@@ -74,6 +74,13 @@ function DashboardContent() {
     setLinkLimit(data.linkLimit)
     setTeams(data.teams || [])
     setLoading(false)
+  }
+
+  const fetchTemplates = async () => {
+    const url = selectedTeamId ? `/api/templates?teamId=${selectedTeamId}` : '/api/templates'
+    const res = await fetch(url)
+    const data = await res.json()
+    setTemplates(data.templates || [])
   }
 
   const switchTeam = (teamId: number | null) => {
@@ -135,10 +142,50 @@ function DashboardContent() {
     setCreating(false)
   }
 
-  const applyTemplate = (template: typeof templates[0]) => {
-    setForm({ ...form, utm_source: template.utm_source, utm_medium: template.utm_medium })
+  const applyTemplate = (template: Template) => {
+    setForm({ 
+      ...form, 
+      utm_source: template.utm_source || '', 
+      utm_medium: template.utm_medium || '',
+      utm_campaign: template.utm_campaign || '',
+      utm_term: template.utm_term || '',
+      utm_content: template.utm_content || ''
+    })
     setShowBuilder(true)
     setActiveTab('links')
+  }
+
+  const saveAsTemplate = async () => {
+    if (!templateName.trim()) return
+    setSavingTemplate(true)
+    
+    const res = await fetch('/api/templates', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        name: templateName,
+        utm_source: form.utm_source,
+        utm_medium: form.utm_medium,
+        utm_campaign: form.utm_campaign,
+        utm_term: form.utm_term,
+        utm_content: form.utm_content,
+        teamId: selectedTeamId
+      })
+    })
+    
+    if (res.ok) {
+      const data = await res.json()
+      setTemplates([data.template, ...templates])
+      setShowSaveTemplate(false)
+      setTemplateName('')
+    }
+    setSavingTemplate(false)
+  }
+
+  const deleteTemplate = async (id: number) => {
+    if (!confirm('Delete this template?')) return
+    await fetch(`/api/templates?id=${id}`, { method: 'DELETE' })
+    setTemplates(templates.filter(t => t.id !== id))
   }
 
   const viewClicks = async (link: LinkItem) => {
@@ -222,7 +269,6 @@ function DashboardContent() {
               <span className="font-display font-semibold text-lg">CampKit</span>
             </Link>
             
-            {/* Team Switcher */}
             {teams.length > 0 && (
               <select
                 value={selectedTeamId || ''}
@@ -253,7 +299,6 @@ function DashboardContent() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
-        {/* Team Banner */}
         {selectedTeam && (
           <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl flex items-center justify-between">
             <div>
@@ -266,7 +311,6 @@ function DashboardContent() {
           </div>
         )}
 
-        {/* Plan Banner for Free Users */}
         {!selectedTeamId && plan === 'free' && (
           <div className="mb-6 p-4 bg-gradient-to-r from-camp-500/10 to-camp-400/10 border border-camp-500/30 rounded-xl flex items-center justify-between">
             <div>
@@ -334,7 +378,7 @@ function DashboardContent() {
               onClick={() => setActiveTab('templates')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'templates' ? 'bg-midnight-800 text-white' : 'text-midnight-400 hover:text-white'}`}
             >
-              Templates
+              Templates {templates.length > 0 && <span className="ml-1 text-midnight-500">({templates.length})</span>}
             </button>
           </div>
           
@@ -365,7 +409,6 @@ function DashboardContent() {
           </div>
         </div>
 
-        {/* Error Message */}
         {error && (
           <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
             <p className="text-red-400">{error}</p>
@@ -380,9 +423,46 @@ function DashboardContent() {
         {/* Link Builder */}
         {showBuilder && (
           <div className="gradient-border p-6 mb-8">
-            <h2 className="font-display font-semibold text-lg mb-4">
-              Create UTM Link {selectedTeam && <span className="text-blue-400 text-sm font-normal ml-2">for {selectedTeam.name}</span>}
-            </h2>
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="font-display font-semibold text-lg">
+                Create UTM Link {selectedTeam && <span className="text-blue-400 text-sm font-normal ml-2">for {selectedTeam.name}</span>}
+              </h2>
+              {(form.utm_source || form.utm_medium || form.utm_campaign) && (
+                <button
+                  onClick={() => setShowSaveTemplate(true)}
+                  className="px-3 py-1 text-sm text-camp-400 hover:text-camp-300"
+                >
+                  💾 Save as Template
+                </button>
+              )}
+            </div>
+            
+            {/* Save Template Modal */}
+            {showSaveTemplate && (
+              <div className="mb-4 p-4 bg-midnight-800 rounded-lg flex gap-3">
+                <input
+                  type="text"
+                  value={templateName}
+                  onChange={e => setTemplateName(e.target.value)}
+                  placeholder="Template name..."
+                  className="flex-1 px-3 py-2 bg-midnight-700 border border-midnight-600 rounded-lg text-sm text-white placeholder:text-midnight-500 focus:border-camp-500 focus:outline-none"
+                />
+                <button
+                  onClick={saveAsTemplate}
+                  disabled={savingTemplate || !templateName.trim()}
+                  className="px-4 py-2 bg-camp-500 hover:bg-camp-400 text-midnight-900 text-sm font-medium rounded-lg disabled:opacity-50"
+                >
+                  {savingTemplate ? '...' : 'Save'}
+                </button>
+                <button
+                  onClick={() => { setShowSaveTemplate(false); setTemplateName('') }}
+                  className="px-3 py-2 text-midnight-400 hover:text-white text-sm"
+                >
+                  Cancel
+                </button>
+              </div>
+            )}
+            
             <form onSubmit={submit} className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
@@ -468,24 +548,51 @@ function DashboardContent() {
 
         {/* Templates Tab */}
         {activeTab === 'templates' && (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-            {templates.map((t, i) => (
-              <div key={i} className="gradient-border p-5 hover:bg-midnight-800/50 transition-colors">
-                <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-display font-semibold">{t.name}</h3>
-                  <button 
-                    onClick={() => applyTemplate(t)}
-                    className="px-3 py-1 bg-camp-500/20 text-camp-400 text-sm rounded-lg hover:bg-camp-500/30 transition-colors"
-                  >
-                    Use
-                  </button>
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  <span className="px-2 py-1 bg-midnight-800 text-xs rounded text-midnight-300">source: {t.utm_source}</span>
-                  <span className="px-2 py-1 bg-midnight-800 text-xs rounded text-midnight-300">medium: {t.utm_medium}</span>
-                </div>
+          <div>
+            {templates.length === 0 ? (
+              <div className="text-center py-16 gradient-border">
+                <div className="text-5xl mb-4">📋</div>
+                <h2 className="font-display text-xl font-semibold mb-2">No templates yet</h2>
+                <p className="text-midnight-400 mb-6">
+                  Create a link and save it as a template to reuse UTM parameters.
+                </p>
+                <button onClick={() => { setShowBuilder(true); setActiveTab('links') }} className="px-6 py-3 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-semibold rounded-lg transition-colors">
+                  + Create Link
+                </button>
               </div>
-            ))}
+            ) : (
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {templates.map((t) => (
+                  <div key={t.id} className="gradient-border p-5 hover:bg-midnight-800/50 transition-colors">
+                    <div className="flex items-center justify-between mb-3">
+                      <h3 className="font-display font-semibold">{t.name}</h3>
+                      <div className="flex items-center gap-2">
+                        <button 
+                          onClick={() => applyTemplate(t)}
+                          className="px-3 py-1 bg-camp-500/20 text-camp-400 text-sm rounded-lg hover:bg-camp-500/30 transition-colors"
+                        >
+                          Use
+                        </button>
+                        <button 
+                          onClick={() => deleteTemplate(t.id)}
+                          className="px-2 py-1 text-red-400 hover:text-red-300 text-sm"
+                        >
+                          🗑️
+                        </button>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {t.utm_source && <span className="px-2 py-1 bg-midnight-800 text-xs rounded text-midnight-300">source: {t.utm_source}</span>}
+                      {t.utm_medium && <span className="px-2 py-1 bg-midnight-800 text-xs rounded text-midnight-300">medium: {t.utm_medium}</span>}
+                      {t.utm_campaign && <span className="px-2 py-1 bg-midnight-800 text-xs rounded text-midnight-300">campaign: {t.utm_campaign}</span>}
+                    </div>
+                    {t.created_by && (
+                      <p className="text-midnight-500 text-xs mt-2">by {t.created_by}</p>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
 
