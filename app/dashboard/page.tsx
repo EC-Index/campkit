@@ -1,11 +1,13 @@
 'use client'
 import { useState, useEffect } from 'react'
 import { useSession, signOut } from 'next-auth/react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
+import { Suspense } from 'react'
 
-type LinkItem = { id: number; destination_url: string; utm_source: string|null; utm_medium: string|null; utm_campaign: string|null; utm_term: string|null; utm_content: string|null; short_code: string|null; title: string|null; clicks: number; created_at: string }
+type LinkItem = { id: number; destination_url: string; utm_source: string|null; utm_medium: string|null; utm_campaign: string|null; utm_term: string|null; utm_content: string|null; short_code: string|null; title: string|null; clicks: number; created_at: string; team_id: number|null }
 type ClickItem = { id: number; clicked_at: string; ip_address: string; user_agent: string; referer: string }
+type Team = { id: number; name: string; role: string }
 
 const templates = [
   { name: 'Google Ads', utm_source: 'google', utm_medium: 'cpc', utm_campaign: '' },
@@ -15,10 +17,14 @@ const templates = [
   { name: 'LinkedIn Post', utm_source: 'linkedin', utm_medium: 'social', utm_campaign: '' },
 ]
 
-export default function DashboardPage() {
+function DashboardContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const searchParams = useSearchParams()
+  
   const [links, setLinks] = useState<LinkItem[]>([])
+  const [teams, setTeams] = useState<Team[]>([])
+  const [selectedTeamId, setSelectedTeamId] = useState<number | null>(null)
   const [loading, setLoading] = useState(true)
   const [showBuilder, setShowBuilder] = useState(false)
   const [copied, setCopied] = useState<string|null>(null)
@@ -45,17 +51,39 @@ export default function DashboardPage() {
   const [creating, setCreating] = useState(false)
 
   useEffect(() => { if (status === 'unauthenticated') router.push('/login') }, [status, router])
+  
+  useEffect(() => {
+    const teamParam = searchParams.get('team')
+    if (teamParam) setSelectedTeamId(parseInt(teamParam))
+  }, [searchParams])
+
   useEffect(() => { 
     if (session) {
-      fetch('/api/links').then(r => r.json()).then(d => { 
-        setLinks(d.links || [])
-        setPlan(d.plan || 'free')
-        setLinkCount(d.linkCount || 0)
-        setLinkLimit(d.linkLimit)
-        setLoading(false) 
-      })
+      fetchLinks()
     }
-  }, [session])
+  }, [session, selectedTeamId])
+
+  const fetchLinks = async () => {
+    setLoading(true)
+    const url = selectedTeamId ? `/api/links?teamId=${selectedTeamId}` : '/api/links'
+    const res = await fetch(url)
+    const data = await res.json()
+    setLinks(data.links || [])
+    setPlan(data.plan || 'free')
+    setLinkCount(data.linkCount || 0)
+    setLinkLimit(data.linkLimit)
+    setTeams(data.teams || [])
+    setLoading(false)
+  }
+
+  const switchTeam = (teamId: number | null) => {
+    setSelectedTeamId(teamId)
+    if (teamId) {
+      router.push(`/dashboard?team=${teamId}`)
+    } else {
+      router.push('/dashboard')
+    }
+  }
 
   const totalClicks = links.reduce((sum, l) => sum + Number(l.clicks), 0)
   const topCampaign = links.reduce((top, l) => Number(l.clicks) > (top?.clicks || 0) ? l : top, null as LinkItem|null)
@@ -91,7 +119,7 @@ export default function DashboardPage() {
     const res = await fetch('/api/links', { 
       method: 'POST', 
       headers: { 'Content-Type': 'application/json' }, 
-      body: JSON.stringify(form) 
+      body: JSON.stringify({ ...form, teamId: selectedTeamId }) 
     })
     const data = await res.json()
     if (res.ok) { 
@@ -129,14 +157,7 @@ export default function DashboardPage() {
   const exportCSV = () => {
     const headers = ['Title', 'URL', 'Short Code', 'Source', 'Medium', 'Campaign', 'Clicks', 'Created']
     const rows = links.map(l => [
-      l.title || '', 
-      l.destination_url, 
-      l.short_code || '', 
-      l.utm_source || '', 
-      l.utm_medium || '', 
-      l.utm_campaign || '', 
-      l.clicks.toString(),
-      new Date(l.created_at).toLocaleDateString()
+      l.title || '', l.destination_url, l.short_code || '', l.utm_source || '', l.utm_medium || '', l.utm_campaign || '', l.clicks.toString(), new Date(l.created_at).toLocaleDateString()
     ])
     const csv = [headers, ...rows].map(r => r.map(c => `"${c}"`).join(',')).join('\n')
     const blob = new Blob([csv], { type: 'text/csv' })
@@ -165,6 +186,9 @@ export default function DashboardPage() {
   }
 
   const getPlanBadge = () => {
+    if (selectedTeamId) {
+      return <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full font-medium">TEAM</span>
+    }
     switch(plan) {
       case 'pro': return <span className="px-2 py-1 bg-camp-500/20 text-camp-400 text-xs rounded-full font-medium">PRO</span>
       case 'team': return <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full font-medium">TEAM</span>
@@ -172,6 +196,8 @@ export default function DashboardPage() {
       default: return <span className="px-2 py-1 bg-midnight-700 text-midnight-400 text-xs rounded-full font-medium">FREE</span>
     }
   }
+
+  const selectedTeam = teams.find(t => t.id === selectedTeamId)
 
   if (status === 'loading' || loading) {
     return (
@@ -186,17 +212,38 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-midnight-900">
-      {/* Header */}
       <header className="border-b border-midnight-800 bg-midnight-900/80 backdrop-blur-xl sticky top-0 z-40">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-camp-500 to-camp-400 flex items-center justify-center">
-              <span className="text-midnight-900 font-bold">C</span>
-            </div>
-            <span className="font-display font-semibold text-lg">CampKit</span>
-          </Link>
-          <div className="flex items-center gap-6">
+          <div className="flex items-center gap-4">
+            <Link href="/" className="flex items-center gap-2">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-camp-500 to-camp-400 flex items-center justify-center">
+                <span className="text-midnight-900 font-bold">C</span>
+              </div>
+              <span className="font-display font-semibold text-lg">CampKit</span>
+            </Link>
+            
+            {/* Team Switcher */}
+            {teams.length > 0 && (
+              <select
+                value={selectedTeamId || ''}
+                onChange={e => switchTeam(e.target.value ? parseInt(e.target.value) : null)}
+                className="ml-4 px-3 py-1.5 bg-midnight-800 border border-midnight-700 rounded-lg text-sm text-white focus:border-camp-500 focus:outline-none"
+              >
+                <option value="">Personal</option>
+                {teams.map(t => (
+                  <option key={t.id} value={t.id}>{t.name}</option>
+                ))}
+              </select>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-4">
             {getPlanBadge()}
+            {teams.length > 0 && (
+              <Link href="/team" className="text-midnight-400 hover:text-white text-sm">
+                ⚙️ Teams
+              </Link>
+            )}
             <span className="text-midnight-400 text-sm hidden sm:block">{session?.user?.email}</span>
             <button onClick={() => signOut({ callbackUrl: '/' })} className="text-midnight-400 hover:text-white text-sm transition-colors">
               Logout
@@ -206,14 +253,27 @@ export default function DashboardPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
+        {/* Team Banner */}
+        {selectedTeam && (
+          <div className="mb-6 p-4 bg-blue-500/10 border border-blue-500/30 rounded-xl flex items-center justify-between">
+            <div>
+              <p className="font-medium text-blue-400">👥 {selectedTeam.name}</p>
+              <p className="text-midnight-400 text-sm">Team workspace • Shared with all members</p>
+            </div>
+            <Link href="/team" className="px-4 py-2 bg-blue-500/20 text-blue-400 font-medium rounded-lg hover:bg-blue-500/30 transition-colors text-sm">
+              Manage Team
+            </Link>
+          </div>
+        )}
+
         {/* Plan Banner for Free Users */}
-        {plan === 'free' && (
+        {!selectedTeamId && plan === 'free' && (
           <div className="mb-6 p-4 bg-gradient-to-r from-camp-500/10 to-camp-400/10 border border-camp-500/30 rounded-xl flex items-center justify-between">
             <div>
               <p className="font-medium">You're on the Free plan</p>
               <p className="text-midnight-400 text-sm">
                 {linkLimit && `${linkCount}/${linkLimit} links used. `}
-                Upgrade to Pro for unlimited links and advanced features.
+                Upgrade to Pro for unlimited links.
               </p>
             </div>
             <Link href="/#pricing" className="px-4 py-2 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-medium rounded-lg transition-colors whitespace-nowrap">
@@ -231,10 +291,10 @@ export default function DashboardPage() {
             </div>
             <div className="font-display text-3xl font-bold">
               {linkCount}
-              {linkLimit && <span className="text-lg text-midnight-500">/{linkLimit}</span>}
+              {!selectedTeamId && linkLimit && <span className="text-lg text-midnight-500">/{linkLimit}</span>}
             </div>
             <div className="text-midnight-500 text-sm mt-1">
-              {plan === 'free' ? `${linkLimit! - linkCount} remaining` : 'Unlimited'}
+              {selectedTeamId ? 'Team links' : (plan === 'free' ? `${linkLimit! - linkCount} remaining` : 'Unlimited')}
             </div>
           </div>
           
@@ -320,7 +380,9 @@ export default function DashboardPage() {
         {/* Link Builder */}
         {showBuilder && (
           <div className="gradient-border p-6 mb-8">
-            <h2 className="font-display font-semibold text-lg mb-4">Create UTM Link</h2>
+            <h2 className="font-display font-semibold text-lg mb-4">
+              Create UTM Link {selectedTeam && <span className="text-blue-400 text-sm font-normal ml-2">for {selectedTeam.name}</span>}
+            </h2>
             <form onSubmit={submit} className="space-y-4">
               <div className="grid md:grid-cols-2 gap-4">
                 <div className="md:col-span-2">
@@ -387,7 +449,7 @@ export default function DashboardPage() {
               <div className="flex gap-3 pt-2">
                 <button 
                   type="submit" 
-                  disabled={creating || (plan === 'free' && linkCount >= (linkLimit || 50))} 
+                  disabled={creating || (!selectedTeamId && plan === 'free' && linkCount >= (linkLimit || 50))} 
                   className="px-6 py-3 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {creating ? 'Creating...' : 'Create Link'}
@@ -437,7 +499,7 @@ export default function DashboardPage() {
                   {search ? 'No links found' : 'No links yet'}
                 </h2>
                 <p className="text-midnight-400 mb-6">
-                  {search ? 'Try a different search term' : 'Create your first UTM link to get started'}
+                  {search ? 'Try a different search term' : selectedTeam ? 'Create your first team link' : 'Create your first UTM link to get started'}
                 </p>
                 {!search && (
                   <button onClick={() => setShowBuilder(true)} className="px-6 py-3 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-semibold rounded-lg transition-colors">
@@ -569,5 +631,17 @@ export default function DashboardPage() {
         </div>
       )}
     </div>
+  )
+}
+
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center bg-midnight-900">
+        <div className="text-midnight-400">Loading...</div>
+      </div>
+    }>
+      <DashboardContent />
+    </Suspense>
   )
 }
