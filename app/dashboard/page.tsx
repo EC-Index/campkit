@@ -9,6 +9,7 @@ type LinkItem = { id: number; destination_url: string; utm_source: string|null; 
 type ClickItem = { id: number; clicked_at: string; ip_address: string; user_agent: string; referer: string }
 type Team = { id: number; name: string; role: string }
 type Template = { id: number; name: string; utm_source: string|null; utm_medium: string|null; utm_campaign: string|null; utm_term: string|null; utm_content: string|null; created_by?: string }
+type BulkLink = { destination_url: string; utm_source: string; utm_medium: string; utm_campaign: string; title: string }
 
 function DashboardContent() {
   const { data: session, status } = useSession()
@@ -25,7 +26,7 @@ function DashboardContent() {
   const [selectedLink, setSelectedLink] = useState<LinkItem|null>(null)
   const [clickDetails, setClickDetails] = useState<ClickItem[]>([])
   const [loadingClicks, setLoadingClicks] = useState(false)
-  const [activeTab, setActiveTab] = useState<'links'|'templates'>('links')
+  const [activeTab, setActiveTab] = useState<'links'|'templates'|'bulk'>('links')
   const [plan, setPlan] = useState<string>('free')
   const [linkCount, setLinkCount] = useState(0)
   const [linkLimit, setLinkLimit] = useState<number|null>(50)
@@ -36,6 +37,13 @@ function DashboardContent() {
   const [showSaveTemplate, setShowSaveTemplate] = useState(false)
   const [templateName, setTemplateName] = useState('')
   const [savingTemplate, setSavingTemplate] = useState(false)
+  
+  // Bulk
+  const [bulkLinks, setBulkLinks] = useState<BulkLink[]>([
+    { destination_url: '', utm_source: '', utm_medium: '', utm_campaign: '', title: '' }
+  ])
+  const [bulkCreating, setBulkCreating] = useState(false)
+  const [bulkResult, setBulkResult] = useState<{ count: number } | null>(null)
   
   const [form, setForm] = useState({ 
     destination_url: '', 
@@ -188,6 +196,54 @@ function DashboardContent() {
     setTemplates(templates.filter(t => t.id !== id))
   }
 
+  // Bulk functions
+  const addBulkRow = () => {
+    setBulkLinks([...bulkLinks, { destination_url: '', utm_source: '', utm_medium: '', utm_campaign: '', title: '' }])
+  }
+
+  const removeBulkRow = (index: number) => {
+    if (bulkLinks.length === 1) return
+    setBulkLinks(bulkLinks.filter((_, i) => i !== index))
+  }
+
+  const updateBulkRow = (index: number, field: keyof BulkLink, value: string) => {
+    const updated = [...bulkLinks]
+    updated[index][field] = value
+    setBulkLinks(updated)
+  }
+
+  const submitBulk = async () => {
+    setError(null)
+    setBulkResult(null)
+    setBulkCreating(true)
+    
+    const validLinks = bulkLinks.filter(l => l.destination_url.trim())
+    if (validLinks.length === 0) {
+      setError('Add at least one URL')
+      setBulkCreating(false)
+      return
+    }
+    
+    const res = await fetch('/api/links/bulk', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ links: validLinks, teamId: selectedTeamId })
+    })
+    
+    const data = await res.json()
+    
+    if (res.ok) {
+      setLinks([...data.links, ...links])
+      setLinkCount(prev => prev + data.count)
+      setBulkResult({ count: data.count })
+      setBulkLinks([{ destination_url: '', utm_source: '', utm_medium: '', utm_campaign: '', title: '' }])
+    } else {
+      setError(data.error)
+    }
+    
+    setBulkCreating(false)
+  }
+
   const viewClicks = async (link: LinkItem) => {
     setSelectedLink(link)
     setLoadingClicks(true)
@@ -244,6 +300,7 @@ function DashboardContent() {
     }
   }
 
+  const canUseBulk = plan === 'team' || plan === 'business'
   const selectedTeam = teams.find(t => t.id === selectedTeamId)
 
   if (status === 'loading' || loading) {
@@ -378,7 +435,13 @@ function DashboardContent() {
               onClick={() => setActiveTab('templates')}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'templates' ? 'bg-midnight-800 text-white' : 'text-midnight-400 hover:text-white'}`}
             >
-              Templates {templates.length > 0 && <span className="ml-1 text-midnight-500">({templates.length})</span>}
+              Templates
+            </button>
+            <button 
+              onClick={() => setActiveTab('bulk')}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'bulk' ? 'bg-midnight-800 text-white' : 'text-midnight-400 hover:text-white'}`}
+            >
+              Bulk Builder {!canUseBulk && <span className="text-midnight-600">🔒</span>}
             </button>
           </div>
           
@@ -400,12 +463,14 @@ function DashboardContent() {
                 </button>
               </>
             )}
-            <button 
-              onClick={() => { setShowBuilder(!showBuilder); setActiveTab('links'); setError(null) }}
-              className="px-4 py-2 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-medium rounded-lg transition-colors whitespace-nowrap"
-            >
-              {showBuilder ? '✕ Cancel' : '+ New Link'}
-            </button>
+            {activeTab !== 'bulk' && (
+              <button 
+                onClick={() => { setShowBuilder(!showBuilder); setActiveTab('links'); setError(null) }}
+                className="px-4 py-2 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-medium rounded-lg transition-colors whitespace-nowrap"
+              >
+                {showBuilder ? '✕ Cancel' : '+ New Link'}
+              </button>
+            )}
           </div>
         </div>
 
@@ -420,8 +485,14 @@ function DashboardContent() {
           </div>
         )}
 
+        {bulkResult && (
+          <div className="mb-6 p-4 bg-camp-500/10 border border-camp-500/30 rounded-xl">
+            <p className="text-camp-400">✓ Created {bulkResult.count} links successfully!</p>
+          </div>
+        )}
+
         {/* Link Builder */}
-        {showBuilder && (
+        {showBuilder && activeTab === 'links' && (
           <div className="gradient-border p-6 mb-8">
             <div className="flex items-center justify-between mb-4">
               <h2 className="font-display font-semibold text-lg">
@@ -437,7 +508,6 @@ function DashboardContent() {
               )}
             </div>
             
-            {/* Save Template Modal */}
             {showSaveTemplate && (
               <div className="mb-4 p-4 bg-midnight-800 rounded-lg flex gap-3">
                 <input
@@ -591,6 +661,118 @@ function DashboardContent() {
                     )}
                   </div>
                 ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Bulk Tab */}
+        {activeTab === 'bulk' && (
+          <div>
+            {!canUseBulk ? (
+              <div className="text-center py-16 gradient-border">
+                <div className="text-5xl mb-4">📦</div>
+                <h2 className="font-display text-xl font-semibold mb-2">Bulk Link Builder</h2>
+                <p className="text-midnight-400 mb-6">
+                  Create up to 100 UTM links at once. Available on Team and Business plans.
+                </p>
+                <Link href="/#pricing" className="px-6 py-3 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-semibold rounded-lg transition-colors inline-block">
+                  Upgrade to Team – $29/mo
+                </Link>
+              </div>
+            ) : (
+              <div className="gradient-border p-6">
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-display font-semibold text-lg">Bulk Link Builder</h2>
+                  <span className="text-midnight-400 text-sm">{bulkLinks.length} link{bulkLinks.length !== 1 ? 's' : ''}</span>
+                </div>
+                
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-midnight-400">
+                        <th className="pb-3 pr-2">URL *</th>
+                        <th className="pb-3 pr-2">Source</th>
+                        <th className="pb-3 pr-2">Medium</th>
+                        <th className="pb-3 pr-2">Campaign</th>
+                        <th className="pb-3 pr-2">Title</th>
+                        <th className="pb-3 w-10"></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {bulkLinks.map((link, i) => (
+                        <tr key={i} className="border-t border-midnight-800">
+                          <td className="py-2 pr-2">
+                            <input
+                              type="url"
+                              value={link.destination_url}
+                              onChange={e => updateBulkRow(i, 'destination_url', e.target.value)}
+                              placeholder="https://..."
+                              className="w-full px-3 py-2 bg-midnight-800 border border-midnight-700 rounded text-white placeholder:text-midnight-600 focus:border-camp-500 focus:outline-none text-sm"
+                            />
+                          </td>
+                          <td className="py-2 pr-2">
+                            <input
+                              value={link.utm_source}
+                              onChange={e => updateBulkRow(i, 'utm_source', e.target.value)}
+                              placeholder="google"
+                              className="w-full px-3 py-2 bg-midnight-800 border border-midnight-700 rounded text-white placeholder:text-midnight-600 focus:border-camp-500 focus:outline-none text-sm"
+                            />
+                          </td>
+                          <td className="py-2 pr-2">
+                            <input
+                              value={link.utm_medium}
+                              onChange={e => updateBulkRow(i, 'utm_medium', e.target.value)}
+                              placeholder="cpc"
+                              className="w-full px-3 py-2 bg-midnight-800 border border-midnight-700 rounded text-white placeholder:text-midnight-600 focus:border-camp-500 focus:outline-none text-sm"
+                            />
+                          </td>
+                          <td className="py-2 pr-2">
+                            <input
+                              value={link.utm_campaign}
+                              onChange={e => updateBulkRow(i, 'utm_campaign', e.target.value)}
+                              placeholder="spring"
+                              className="w-full px-3 py-2 bg-midnight-800 border border-midnight-700 rounded text-white placeholder:text-midnight-600 focus:border-camp-500 focus:outline-none text-sm"
+                            />
+                          </td>
+                          <td className="py-2 pr-2">
+                            <input
+                              value={link.title}
+                              onChange={e => updateBulkRow(i, 'title', e.target.value)}
+                              placeholder="Link name"
+                              className="w-full px-3 py-2 bg-midnight-800 border border-midnight-700 rounded text-white placeholder:text-midnight-600 focus:border-camp-500 focus:outline-none text-sm"
+                            />
+                          </td>
+                          <td className="py-2">
+                            <button
+                              onClick={() => removeBulkRow(i)}
+                              disabled={bulkLinks.length === 1}
+                              className="text-red-400 hover:text-red-300 disabled:opacity-30 disabled:cursor-not-allowed"
+                            >
+                              ✕
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+                
+                <div className="flex items-center justify-between mt-4 pt-4 border-t border-midnight-800">
+                  <button
+                    onClick={addBulkRow}
+                    className="px-4 py-2 text-camp-400 hover:text-camp-300 text-sm"
+                  >
+                    + Add Row
+                  </button>
+                  <button
+                    onClick={submitBulk}
+                    disabled={bulkCreating}
+                    className="px-6 py-3 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-semibold rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {bulkCreating ? 'Creating...' : `Create ${bulkLinks.filter(l => l.destination_url).length} Links`}
+                  </button>
+                </div>
               </div>
             )}
           </div>
