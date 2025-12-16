@@ -2,6 +2,7 @@
 import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import { Footer } from '@/components/Footer'
+import { CheckoutButton } from '@/components/CheckoutButton'
 
 export default function Home() {
   const { data: session } = useSession()
@@ -76,15 +77,86 @@ export default function Home() {
           <h2 className="font-display text-3xl font-bold text-center mb-4">Simple pricing</h2>
           <p className="text-midnight-400 text-center mb-12">Save up to 50% vs UTM.io</p>
           <div className="grid md:grid-cols-4 gap-6">
-            {[{n:'FREE',p:'$0',d:'Forever',f:['50 UTM links','Basic analytics','Link shortener','CSV export'],pop:false},{n:'PRO',p:'$9',d:'/month',f:['Unlimited links','Advanced analytics','Custom domains','UTM templates','Priority support'],pop:true},{n:'TEAM',p:'$29',d:'/month',f:['5 team members','Workspaces','Role permissions','Shared templates','API access'],pop:false},{n:'BUSINESS',p:'$79',d:'/month',f:['Unlimited members','Multiple workspaces','SSO / SAML','Dedicated support','SLA guarantee'],pop:false}].map((t,x)=>(
-              <div key={x} className={`gradient-border p-6 ${t.pop?'relative':''}`}>
-                {t.pop&&<div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-camp-500 text-midnight-900 text-xs font-semibold rounded-full">POPULAR</div>}
-                <div className={`text-sm font-medium mb-2 ${t.pop?'text-camp-400':'text-midnight-400'}`}>{t.n}</div>
-                <div className="flex items-baseline gap-1 mb-2"><span className="font-display text-4xl font-bold">{t.p}</span><span className="text-midnight-500">{t.d}</span></div>
-                <Link href="/signup" className={`block text-center py-3 rounded-lg mb-6 ${t.pop?'bg-camp-500 text-midnight-900 font-semibold':'border border-midnight-600 text-midnight-300'}`}>Get Started</Link>
-                <ul className="space-y-3 text-sm">{t.f.map((f,i)=><li key={i} className="flex items-center gap-2"><span className="text-camp-400">✓</span>{f}</li>)}</ul>
+            {/* Free */}
+            <div className="gradient-border p-6">
+              <div className="text-midnight-400 text-sm font-medium mb-2">FREE</div>
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="font-display text-4xl font-bold">$0</span>
               </div>
-            ))}
+              <p className="text-midnight-500 text-sm mb-6">Forever free</p>
+              <Link href="/signup" className="block text-center py-3 border border-midnight-600 rounded-lg text-midnight-300 hover:border-midnight-500 hover:text-white transition-colors mb-6">
+                Get Started
+              </Link>
+              <ul className="space-y-3 text-sm">
+                {['50 UTM links', 'Basic analytics', 'Link shortener', 'CSV export'].map((f, i) => (
+                  <li key={i} className="flex items-center gap-2"><span className="text-camp-400">✓</span>{f}</li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Pro */}
+            <div className="gradient-border p-6 relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-camp-500 text-midnight-900 text-xs font-semibold rounded-full">POPULAR</div>
+              <div className="text-camp-400 text-sm font-medium mb-2">PRO</div>
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="font-display text-4xl font-bold">$9</span>
+                <span className="text-midnight-500">/mo</span>
+              </div>
+              <p className="text-midnight-500 text-sm mb-6">For professionals</p>
+              <CheckoutButton 
+                plan="pro"
+                className="block w-full text-center py-3 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-semibold rounded-lg transition-all mb-6"
+              >
+                Get Pro →
+              </CheckoutButton>
+              <ul className="space-y-3 text-sm">
+                {['Unlimited links', 'Advanced analytics', 'Custom domains', 'UTM templates', 'Priority support'].map((f, i) => (
+                  <li key={i} className="flex items-center gap-2"><span className="text-camp-400">✓</span>{f}</li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Team */}
+            <div className="gradient-border p-6">
+              <div className="text-blue-400 text-sm font-medium mb-2">TEAM</div>
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="font-display text-4xl font-bold">$29</span>
+                <span className="text-midnight-500">/mo</span>
+              </div>
+              <p className="text-midnight-500 text-sm mb-6">For small teams</p>
+              <CheckoutButton 
+                plan="team"
+                className="block w-full text-center py-3 border border-midnight-600 rounded-lg text-midnight-300 hover:border-midnight-500 hover:text-white transition-colors mb-6"
+              >
+                Get Team
+              </CheckoutButton>
+              <ul className="space-y-3 text-sm">
+                {['Up to 5 members', 'Team workspaces', 'Role permissions', 'Shared templates', 'Bulk builder', 'API access'].map((f, i) => (
+                  <li key={i} className="flex items-center gap-2"><span className="text-camp-400">✓</span>{f}</li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Business */}
+            <div className="gradient-border p-6">
+              <div className="text-purple-400 text-sm font-medium mb-2">BUSINESS</div>
+              <div className="flex items-baseline gap-1 mb-2">
+                <span className="font-display text-4xl font-bold">$79</span>
+                <span className="text-midnight-500">/mo</span>
+              </div>
+              <p className="text-midnight-500 text-sm mb-6">For agencies</p>
+              <CheckoutButton 
+                plan="business"
+                className="block w-full text-center py-3 border border-midnight-600 rounded-lg text-midnight-300 hover:border-midnight-500 hover:text-white transition-colors mb-6"
+              >
+                Get Business
+              </CheckoutButton>
+              <ul className="space-y-3 text-sm">
+                {['Unlimited members', 'Multiple workspaces', 'SSO / SAML', 'Dedicated support', 'Custom integrations', 'SLA guarantee'].map((f, i) => (
+                  <li key={i} className="flex items-center gap-2"><span className="text-camp-400">✓</span>{f}</li>
+                ))}
+              </ul>
+            </div>
           </div>
           <p className="text-center text-midnight-500 text-sm mt-8">UTM.io charges $19-159/mo. CampKit saves you up to 50%.</p>
         </div>
