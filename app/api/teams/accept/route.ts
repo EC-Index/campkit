@@ -5,6 +5,8 @@ import { sql } from '@/lib/db'
 
 export const dynamic = 'force-dynamic'
 
+const TEAM_MEMBER_LIMIT = 5
+
 // GET: Get invitation details
 export async function GET(request: Request) {
   try {
@@ -49,7 +51,7 @@ export async function POST(request: Request) {
     
     // Get invitation
     const invitations = await sql`
-      SELECT ti.*, t.name as team_name
+      SELECT ti.*, t.name as team_name, t.owner_id
       FROM team_invitations ti
       JOIN teams t ON ti.team_id = t.id
       WHERE ti.token = ${token} AND ti.status = 'pending' AND ti.expires_at > NOW()
@@ -77,13 +79,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'You are already a member of this team' }, { status: 400 })
     }
     
-    // Check team member limit
-    const memberCount = await sql`
-      SELECT COUNT(*) as count FROM team_members WHERE team_id = ${invitation.team_id}
-    `
+    // Get team owner's plan
+    const owner = await sql`SELECT plan FROM users WHERE id = ${invitation.owner_id}`
+    const ownerPlan = owner[0]?.plan || 'team'
     
-    if (Number(memberCount[0].count) >= 5) {
-      return NextResponse.json({ error: 'Team has reached member limit' }, { status: 403 })
+    // Check team member limit (only for non-business plans)
+    if (ownerPlan !== 'business') {
+      const memberCount = await sql`
+        SELECT COUNT(*) as count FROM team_members WHERE team_id = ${invitation.team_id}
+      `
+      
+      if (Number(memberCount[0].count) >= TEAM_MEMBER_LIMIT) {
+        return NextResponse.json({ error: 'Team has reached member limit' }, { status: 403 })
+      }
     }
     
     // Add user to team

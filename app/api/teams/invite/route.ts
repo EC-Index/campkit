@@ -6,6 +6,9 @@ import { nanoid } from 'nanoid'
 
 export const dynamic = 'force-dynamic'
 
+const TEAM_MEMBER_LIMIT = 5 // Team plan limit
+// Business plan = unlimited
+
 // POST: Invite a user to a team
 export async function POST(request: Request) {
   try {
@@ -29,13 +32,32 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Only admins can invite members' }, { status: 403 })
     }
     
-    // Check team member limit (5 for team plan)
-    const memberCount = await sql`
-      SELECT COUNT(*) as count FROM team_members WHERE team_id = ${teamId}
+    // Get team owner's plan
+    const team = await sql`
+      SELECT t.owner_id, u.plan 
+      FROM teams t 
+      JOIN users u ON t.owner_id = u.id 
+      WHERE t.id = ${teamId}
     `
     
-    if (Number(memberCount[0].count) >= 5) {
-      return NextResponse.json({ error: 'Team plan is limited to 5 members. Upgrade to Business for unlimited.' }, { status: 403 })
+    if (team.length === 0) {
+      return NextResponse.json({ error: 'Team not found' }, { status: 404 })
+    }
+    
+    const ownerPlan = team[0].plan || 'team'
+    
+    // Check team member limit (5 for team plan, unlimited for business)
+    if (ownerPlan !== 'business') {
+      const memberCount = await sql`
+        SELECT COUNT(*) as count FROM team_members WHERE team_id = ${teamId}
+      `
+      
+      if (Number(memberCount[0].count) >= TEAM_MEMBER_LIMIT) {
+        return NextResponse.json({ 
+          error: `Team plan is limited to ${TEAM_MEMBER_LIMIT} members. Upgrade to Business for unlimited members.`,
+          requiresUpgrade: true
+        }, { status: 403 })
+      }
     }
     
     // Check if already invited or member

@@ -10,6 +10,7 @@ type Team = {
   name: string
   role: string
   member_count: number
+  owner_plan?: string
   created_at: string
 }
 
@@ -27,6 +28,8 @@ type Invitation = {
   status: string
   created_at: string
 }
+
+const TEAM_MEMBER_LIMIT = 5
 
 export default function TeamPage() {
   const { data: session, status } = useSession()
@@ -115,6 +118,7 @@ export default function TeamPage() {
     if (!inviteEmail.trim() || !selectedTeam) return
     
     setInviting(true)
+    setMessage(null)
     try {
       const res = await fetch('/api/teams/invite', {
         method: 'POST',
@@ -155,6 +159,9 @@ export default function TeamPage() {
 
   const canCreateTeam = plan === 'team' || plan === 'business'
   const canCreateMoreTeams = plan === 'business' || (plan === 'team' && teams.filter(t => t.role === 'admin').length === 0)
+  const isBusinessPlan = plan === 'business'
+  const memberLimit = isBusinessPlan ? '∞' : TEAM_MEMBER_LIMIT
+  const canInviteMore = isBusinessPlan || members.length < TEAM_MEMBER_LIMIT
 
   if (status === 'loading' || loading) {
     return (
@@ -174,15 +181,25 @@ export default function TeamPage() {
             </div>
             <span className="font-display font-semibold text-lg">CampKit</span>
           </Link>
-          <Link href="/dashboard" className="text-midnight-400 hover:text-white text-sm">
-            ← Back to Dashboard
-          </Link>
+          <div className="flex items-center gap-4">
+            <Link href="/settings" className="text-midnight-400 hover:text-white text-sm">
+              🔑 API Settings
+            </Link>
+            <Link href="/dashboard" className="text-midnight-400 hover:text-white text-sm">
+              ← Back to Dashboard
+            </Link>
+          </div>
         </div>
       </header>
 
       <main className="max-w-5xl mx-auto px-6 py-8">
         <div className="flex items-center justify-between mb-8">
-          <h1 className="font-display text-2xl font-bold">Team Management</h1>
+          <div>
+            <h1 className="font-display text-2xl font-bold">Team Management</h1>
+            <p className="text-midnight-400 text-sm mt-1">
+              {isBusinessPlan ? 'Business Plan • Unlimited members' : `Team Plan • Up to ${TEAM_MEMBER_LIMIT} members per team`}
+            </p>
+          </div>
           {canCreateTeam && canCreateMoreTeams && (
             <button
               onClick={() => setShowCreateTeam(!showCreateTeam)}
@@ -295,10 +312,17 @@ export default function TeamPage() {
                     {/* Members */}
                     <div className="gradient-border p-6">
                       <div className="flex items-center justify-between mb-4">
-                        <h2 className="font-display font-semibold">Members ({members.length}/5)</h2>
+                        <h2 className="font-display font-semibold">
+                          Members ({members.length}/{memberLimit})
+                        </h2>
+                        {isBusinessPlan && (
+                          <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded-full">
+                            Unlimited
+                          </span>
+                        )}
                       </div>
                       
-                      {selectedTeam.role === 'admin' && members.length < 5 && (
+                      {selectedTeam.role === 'admin' && canInviteMore && (
                         <form onSubmit={inviteMember} className="flex gap-3 mb-4">
                           <input
                             type="email"
@@ -316,6 +340,17 @@ export default function TeamPage() {
                             {inviting ? '...' : 'Invite'}
                           </button>
                         </form>
+                      )}
+
+                      {selectedTeam.role === 'admin' && !canInviteMore && !isBusinessPlan && (
+                        <div className="mb-4 p-3 bg-orange-500/10 border border-orange-500/30 rounded-lg">
+                          <p className="text-orange-400 text-sm">
+                            Team limit reached ({TEAM_MEMBER_LIMIT} members). 
+                            <Link href="/#pricing" className="ml-1 underline hover:no-underline">
+                              Upgrade to Business
+                            </Link> for unlimited members.
+                          </p>
+                        </div>
                       )}
 
                       <div className="space-y-2">
