@@ -1,0 +1,12 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body { font-family: 'Inter', sans-serif; background: #0a0a0c; color: #eeeef0; }
+.font-display { font-family: 'Space Grotesk', sans-serif; }
+.gradient-text { background: linear-gradient(135deg, #22c55e, #4ade80, #86efad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+.gradient-border { position: relative; background: #141418; border-radius: 12px; }
+.gradient-border::before { content: ''; position: absolute; inset: 0; border-radius: 12px; padding: 1px; background: linear-gradient(135deg, #22c55e, #4ade80, transparent); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; pointer-events: none; }
+.btn-primary { @apply px-4 py-2 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-medium rounded-lg transition-all; }
+.input { @apply w-full px-4 py-3 bg-midnight-800 border border-midnight-700 rounded-lg text-white placeholder:text-midnight-500; }

@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+Sitemap: https://getcampkit.com/sitemap.xml
+Disallow: /api/
+Disallow: /dashboard
