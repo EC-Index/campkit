@@ -7,7 +7,7 @@ import { useEffect, Suspense } from 'react'
 // ============================================
 // CONFIGURATION - Replace with your IDs
 // ============================================
-const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'        // Google Analytics 4
+const GA_MEASUREMENT_ID = 'G-E0BJWJDNPN'        // Google Analytics 4
 const AW_CONVERSION_ID = 'AW-XXXXXXXXXX'        // Google Ads Account
 const AW_SIGNUP_LABEL = 'YYYYYYYYYYY'           // Signup conversion label
 const AW_UPGRADE_LABEL = 'ZZZZZZZZZZZ'          // Pro upgrade conversion label
