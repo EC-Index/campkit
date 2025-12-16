@@ -1,38 +1,82 @@
-﻿import type { Metadata } from 'next'
-import { Providers } from './providers'
-import { CookieBanner } from '@/components/CookieBanner'
+import type { Metadata } from 'next'
+import { Inter } from 'next/font/google'
 import './globals.css'
+import { GoogleAnalytics } from '@/components/GoogleAnalytics'
+import { Providers } from './providers'
+
+const inter = Inter({ 
+  subsets: ['latin'],
+  variable: '--font-inter',
+})
 
 export const metadata: Metadata = {
+  title: {
+    default: 'CampKit - UTM Link Builder & Campaign Tracking',
+    template: '%s | CampKit',
+  },
+  description: 'Build UTM links, create branded short URLs, and track campaign performance. The Bitly alternative for marketing teams. Start free.',
+  keywords: ['utm builder', 'link shortener', 'campaign tracking', 'utm tracking', 'bitly alternative', 'short links', 'marketing analytics'],
+  authors: [{ name: 'CampKit' }],
+  creator: 'CampKit',
   metadataBase: new URL('https://getcampkit.com'),
-  title: { default: 'CampKit – UTM Link Manager | Affordable UTM.io Alternative', template: '%s | CampKit' },
-  description: 'Create, organize, and track UTM links in one place. CampKit is the affordable UTM.io alternative starting at $0/month.',
-  keywords: ['UTM builder', 'UTM manager', 'UTM.io alternative', 'campaign tracking', 'link shortener'],
-  openGraph: { type: 'website', locale: 'en_US', url: 'https://getcampkit.com', siteName: 'CampKit', title: 'CampKit – The Affordable UTM Link Manager', description: 'Stop losing track of campaign links. Free tier available.' },
-  robots: { index: true, follow: true },
-  verification: { google: 'wJJG44oJlsQGuYDw_Kp9DYWzgUBDMzoXfNSL5V96ZoQ' },
+  openGraph: {
+    type: 'website',
+    locale: 'en_US',
+    url: 'https://getcampkit.com',
+    siteName: 'CampKit',
+    title: 'CampKit - UTM Link Builder & Campaign Tracking',
+    description: 'Build UTM links, create branded short URLs, and track campaign performance. Start free.',
+    images: [
+      {
+        url: '/og-image.png',
+        width: 1200,
+        height: 630,
+        alt: 'CampKit - UTM Link Builder',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'CampKit - UTM Link Builder & Campaign Tracking',
+    description: 'Build UTM links, create branded short URLs, and track campaign performance. Start free.',
+    images: ['/og-image.png'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon-16x16.png',
+    apple: '/apple-touch-icon.png',
+  },
+  manifest: '/site.webmanifest',
 }
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const jsonLd = {
-    '@context': 'https://schema.org',
-    '@type': 'SoftwareApplication',
-    name: 'CampKit',
-    applicationCategory: 'BusinessApplication',
-    operatingSystem: 'Web',
-    description: 'UTM Link Manager for Marketing Teams',
-    url: 'https://getcampkit.com',
-    offers: [
-      { '@type': 'Offer', name: 'Free', price: '0', priceCurrency: 'USD' },
-      { '@type': 'Offer', name: 'Pro', price: '9', priceCurrency: 'USD' },
-      { '@type': 'Offer', name: 'Team', price: '29', priceCurrency: 'USD' },
-      { '@type': 'Offer', name: 'Business', price: '79', priceCurrency: 'USD' }
-    ]
-  }
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="en">
-      <head><script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} /></head>
-      <body><Providers>{children}<CookieBanner /></Providers></body>
+    <html lang="en" className={inter.variable}>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      </head>
+      <body className="font-sans antialiased bg-midnight-900 text-white">
+        <GoogleAnalytics />
+        <Providers>
+          {children}
+        </Providers>
+      </body>
     </html>
   )
 }
