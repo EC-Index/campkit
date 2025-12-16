@@ -1,4 +1,4 @@
-import type { Metadata } from 'next'
+﻿import type { Metadata } from 'next'
 import { Providers } from './providers'
 import { CookieBanner } from '@/components/CookieBanner'
 import './globals.css'
@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   keywords: ['UTM builder', 'UTM manager', 'UTM.io alternative', 'campaign tracking', 'link shortener'],
   openGraph: { type: 'website', locale: 'en_US', url: 'https://getcampkit.com', siteName: 'CampKit', title: 'CampKit – The Affordable UTM Link Manager', description: 'Stop losing track of campaign links. Free tier available.' },
   robots: { index: true, follow: true },
+  verification: { google: 'wJJG44oJlsQGuYDw_Kp9DYWzgUBDMzoXfNSL5V96ZoQ' },
 }
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
