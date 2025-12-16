@@ -27,6 +27,10 @@ export default function DashboardPage() {
   const [clickDetails, setClickDetails] = useState<ClickItem[]>([])
   const [loadingClicks, setLoadingClicks] = useState(false)
   const [activeTab, setActiveTab] = useState<'links'|'templates'>('links')
+  const [plan, setPlan] = useState<string>('free')
+  const [linkCount, setLinkCount] = useState(0)
+  const [linkLimit, setLinkLimit] = useState<number|null>(50)
+  const [error, setError] = useState<string|null>(null)
   
   const [form, setForm] = useState({ 
     destination_url: '', 
@@ -44,7 +48,10 @@ export default function DashboardPage() {
   useEffect(() => { 
     if (session) {
       fetch('/api/links').then(r => r.json()).then(d => { 
-        setLinks(d.links || []); 
+        setLinks(d.links || [])
+        setPlan(d.plan || 'free')
+        setLinkCount(d.linkCount || 0)
+        setLinkLimit(d.linkLimit)
         setLoading(false) 
       })
     }
@@ -73,11 +80,13 @@ export default function DashboardPage() {
     if (!confirm('Delete this link?')) return
     await fetch(`/api/links?id=${id}`, { method: 'DELETE' })
     setLinks(links.filter(l => l.id !== id))
+    setLinkCount(prev => prev - 1)
     if (selectedLink?.id === id) setSelectedLink(null)
   }
 
   const submit = async (e: React.FormEvent) => { 
     e.preventDefault()
+    setError(null)
     setCreating(true)
     const res = await fetch('/api/links', { 
       method: 'POST', 
@@ -87,8 +96,13 @@ export default function DashboardPage() {
     const data = await res.json()
     if (res.ok) { 
       setLinks([{ ...data.link, clicks: 0 }, ...links])
+      setLinkCount(prev => prev + 1)
       setForm({ destination_url: '', utm_source: '', utm_medium: '', utm_campaign: '', utm_term: '', utm_content: '', title: '', create_short_link: true })
       setShowBuilder(false)
+    } else if (data.limitReached) {
+      setError(data.error)
+    } else {
+      setError(data.error || 'Failed to create link')
     }
     setCreating(false)
   }
@@ -150,6 +164,15 @@ export default function DashboardPage() {
     return '💻 Desktop'
   }
 
+  const getPlanBadge = () => {
+    switch(plan) {
+      case 'pro': return <span className="px-2 py-1 bg-camp-500/20 text-camp-400 text-xs rounded-full font-medium">PRO</span>
+      case 'team': return <span className="px-2 py-1 bg-blue-500/20 text-blue-400 text-xs rounded-full font-medium">TEAM</span>
+      case 'business': return <span className="px-2 py-1 bg-purple-500/20 text-purple-400 text-xs rounded-full font-medium">BUSINESS</span>
+      default: return <span className="px-2 py-1 bg-midnight-700 text-midnight-400 text-xs rounded-full font-medium">FREE</span>
+    }
+  }
+
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-midnight-900">
@@ -173,6 +196,7 @@ export default function DashboardPage() {
             <span className="font-display font-semibold text-lg">CampKit</span>
           </Link>
           <div className="flex items-center gap-6">
+            {getPlanBadge()}
             <span className="text-midnight-400 text-sm hidden sm:block">{session?.user?.email}</span>
             <button onClick={() => signOut({ callbackUrl: '/' })} className="text-midnight-400 hover:text-white text-sm transition-colors">
               Logout
@@ -182,6 +206,22 @@ export default function DashboardPage() {
       </header>
 
       <main className="max-w-7xl mx-auto px-6 py-8">
+        {/* Plan Banner for Free Users */}
+        {plan === 'free' && (
+          <div className="mb-6 p-4 bg-gradient-to-r from-camp-500/10 to-camp-400/10 border border-camp-500/30 rounded-xl flex items-center justify-between">
+            <div>
+              <p className="font-medium">You're on the Free plan</p>
+              <p className="text-midnight-400 text-sm">
+                {linkLimit && `${linkCount}/${linkLimit} links used. `}
+                Upgrade to Pro for unlimited links and advanced features.
+              </p>
+            </div>
+            <Link href="/#pricing" className="px-4 py-2 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-medium rounded-lg transition-colors whitespace-nowrap">
+              Upgrade to Pro
+            </Link>
+          </div>
+        )}
+
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
           <div className="gradient-border p-6">
@@ -189,8 +229,13 @@ export default function DashboardPage() {
               <span className="text-midnight-400 text-sm">Total Links</span>
               <span className="text-2xl">🔗</span>
             </div>
-            <div className="font-display text-3xl font-bold">{links.length}</div>
-            <div className="text-midnight-500 text-sm mt-1">All time</div>
+            <div className="font-display text-3xl font-bold">
+              {linkCount}
+              {linkLimit && <span className="text-lg text-midnight-500">/{linkLimit}</span>}
+            </div>
+            <div className="text-midnight-500 text-sm mt-1">
+              {plan === 'free' ? `${linkLimit! - linkCount} remaining` : 'Unlimited'}
+            </div>
           </div>
           
           <div className="gradient-border p-6">
@@ -252,13 +297,25 @@ export default function DashboardPage() {
               </>
             )}
             <button 
-              onClick={() => { setShowBuilder(!showBuilder); setActiveTab('links') }}
+              onClick={() => { setShowBuilder(!showBuilder); setActiveTab('links'); setError(null) }}
               className="px-4 py-2 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-medium rounded-lg transition-colors whitespace-nowrap"
             >
               {showBuilder ? '✕ Cancel' : '+ New Link'}
             </button>
           </div>
         </div>
+
+        {/* Error Message */}
+        {error && (
+          <div className="mb-6 p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+            <p className="text-red-400">{error}</p>
+            {error.includes('Upgrade') && (
+              <Link href="/#pricing" className="inline-block mt-2 text-camp-400 hover:text-camp-300 text-sm">
+                View pricing →
+              </Link>
+            )}
+          </div>
+        )}
 
         {/* Link Builder */}
         {showBuilder && (
@@ -330,14 +387,14 @@ export default function DashboardPage() {
               <div className="flex gap-3 pt-2">
                 <button 
                   type="submit" 
-                  disabled={creating} 
-                  className="px-6 py-3 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-semibold rounded-lg transition-colors disabled:opacity-50"
+                  disabled={creating || (plan === 'free' && linkCount >= (linkLimit || 50))} 
+                  className="px-6 py-3 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-semibold rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {creating ? 'Creating...' : 'Create Link'}
                 </button>
                 <button 
                   type="button"
-                  onClick={() => setShowBuilder(false)}
+                  onClick={() => { setShowBuilder(false); setError(null) }}
                   className="px-6 py-3 border border-midnight-700 text-midnight-300 rounded-lg hover:border-midnight-600 transition-colors"
                 >
                   Cancel
