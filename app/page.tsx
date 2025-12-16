@@ -1,373 +1,452 @@
-'use client'
-import { useSession } from 'next-auth/react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { Footer } from '@/components/Footer'
-import { CheckoutButton } from '@/components/CheckoutButton'
 
 export default function Home() {
-  const { data: session } = useSession()
   return (
-    <main className="min-h-screen">
-      {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-midnight-900/80 backdrop-blur-xl border-b border-midnight-700/50">
+    <div className="min-h-screen bg-midnight-900 text-white">
+      {/* Minimal Sticky Header */}
+      <header className="fixed top-0 left-0 right-0 z-50 bg-midnight-900/90 backdrop-blur-xl border-b border-midnight-800/50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-camp-500 to-camp-400 flex items-center justify-center"><span className="text-midnight-900 font-bold text-sm">C</span></div>
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-camp-500 to-camp-400 flex items-center justify-center">
+              <span className="text-midnight-900 font-bold text-lg">C</span>
+            </div>
             <span className="font-display font-semibold text-lg">CampKit</span>
           </div>
-          <div className="hidden md:flex items-center gap-6 text-sm text-midnight-300">
-            <Link href="/#how-it-works" className="hover:text-white">How it works</Link>
-            <Link href="/#pricing" className="hover:text-white">Pricing</Link>
-            <Link href="/faq" className="hover:text-white">FAQ</Link>
-            <Link href="/vs-utmio" className="hover:text-white">vs UTM.io</Link>
-          </div>
-          <div className="flex items-center gap-4">
-            {session ? <Link href="/dashboard" className="btn-primary">Dashboard</Link> : (
-              <><Link href="/login" className="text-midnight-300 hover:text-white">Login</Link><Link href="/signup" className="btn-primary">Get Started Free</Link></>
-            )}
-          </div>
+          <Link 
+            href="/login" 
+            className="px-5 py-2.5 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-semibold rounded-lg transition-all hover:scale-105"
+          >
+            Start Free →
+          </Link>
         </div>
-      </nav>
+      </header>
 
-      {/* Hero Section */}
-      <section className="pt-32 pb-20 px-6 relative overflow-hidden">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[600px] bg-camp-500/10 rounded-full blur-[120px] pointer-events-none" />
-        <div className="max-w-4xl mx-auto text-center relative">
-          <div className="inline-flex items-center gap-2 px-4 py-2 bg-midnight-800 rounded-full border border-midnight-700 mb-8">
-            <span className="text-camp-400">★★★★★</span><span className="text-sm text-midnight-300">Rated 4.9/5 by marketers</span>
+      {/* Hero Section - Clearer UVP */}
+      <section className="pt-32 pb-20 px-6">
+        <div className="max-w-4xl mx-auto text-center">
+          {/* Trust Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-2 bg-camp-500/10 border border-camp-500/20 rounded-full mb-8">
+            <span className="text-yellow-400">★★★★★</span>
+            <span className="text-camp-400 text-sm font-medium">Trusted by 500+ marketing teams</span>
           </div>
-          <h1 className="font-display text-5xl md:text-7xl font-bold leading-tight mb-6">
-            The <span className="gradient-text">affordable UTM.io alternative</span> for marketing teams
+
+          {/* Main Headline - Problem + Solution + Benefit */}
+          <h1 className="font-display text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+            Create & Track UTM Links<br />
+            <span className="text-camp-400">Without Spreadsheet Chaos</span>
           </h1>
-          <p className="text-xl text-midnight-300 max-w-2xl mx-auto mb-10">
-            CampKit is a UTM link manager that helps you create, organize, and track campaign links in one place. Save up to 50% compared to UTM.io.
+          
+          {/* Subheadline - Explains the value */}
+          <p className="text-xl text-midnight-300 mb-10 max-w-2xl mx-auto leading-relaxed">
+            Build UTM links in seconds, get branded short URLs, and see real-time click analytics. 
+            <span className="text-white font-medium"> Finally organize your campaigns.</span>
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link href="/signup" className="px-8 py-4 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-semibold rounded-xl transition-all">Get Started Free →</Link>
-            <Link href="/#how-it-works" className="px-8 py-4 border border-midnight-600 text-midnight-200 rounded-xl hover:border-midnight-500 transition-all">See how it works</Link>
+
+          {/* Single Primary CTA */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-6">
+            <Link 
+              href="/signup" 
+              className="px-8 py-4 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-bold text-lg rounded-xl transition-all hover:scale-105 shadow-lg shadow-camp-500/25"
+            >
+              Create Free UTM Links →
+            </Link>
           </div>
-          <p className="mt-4 text-sm text-midnight-500">Free forever plan • No credit card required • Setup in 2 minutes</p>
+          
+          {/* Trust Signals */}
+          <p className="text-midnight-500 text-sm">
+            Free forever plan • No credit card required • Setup in 30 seconds
+          </p>
         </div>
       </section>
 
-      {/* Dashboard Screenshot */}
-      <section className="py-12 px-6">
+      {/* Product Screenshot - Large & Clear */}
+      <section className="pb-20 px-6">
         <div className="max-w-5xl mx-auto">
-          <div className="gradient-border p-2 rounded-2xl">
-            <Image 
-              src="/screenshots/dashboard.png" 
-              alt="CampKit Dashboard - UTM Link Manager" 
-              width={1200} 
-              height={600}
-              className="rounded-xl w-full"
+          <div className="relative rounded-2xl overflow-hidden border border-midnight-700 shadow-2xl shadow-black/50">
+            <Image
+              src="/dashboard-screenshot.png"
+              alt="CampKit Dashboard - UTM Link Builder and Analytics"
+              width={1920}
+              height={1080}
+              className="w-full"
               priority
             />
+            {/* Overlay gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-midnight-900/20 to-transparent pointer-events-none" />
           </div>
         </div>
       </section>
 
-      {/* What is CampKit - AI Summary */}
+      {/* Who It's For - Clear Target Audience */}
       <section className="py-16 px-6 bg-midnight-800/30">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="font-display text-2xl font-bold mb-4">What is CampKit?</h2>
-          <p className="text-midnight-300 text-lg leading-relaxed">
-            <strong className="text-white">CampKit is a UTM link management tool</strong> for marketing teams and agencies. 
-            It helps you build UTM parameters, create short tracking links, and analyze campaign performance. 
-            CampKit is designed as an <strong className="text-white">affordable alternative to UTM.io</strong>, with 
-            a free tier and paid plans starting at <strong className="text-white">$9/month</strong> (compared to UTM.io's $19/month).
+          <p className="text-midnight-400 text-lg">
+            Built for <span className="text-white font-medium">marketing teams</span>, 
+            <span className="text-white font-medium"> agencies</span>, 
+            <span className="text-white font-medium"> social media managers</span> & 
+            <span className="text-white font-medium"> email marketers</span>
           </p>
         </div>
       </section>
 
-      {/* How it Works */}
-      <section id="how-it-works" className="py-20 px-6 border-t border-midnight-800">
+      {/* 3 Key Benefits - Visual */}
+      <section className="py-20 px-6">
         <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">How CampKit works</h2>
-            <p className="text-midnight-400">From messy spreadsheets to organized campaigns in 3 steps</p>
-          </div>
-          
+          <h2 className="font-display text-3xl font-bold text-center mb-4">
+            Everything you need. Nothing you don't.
+          </h2>
+          <p className="text-midnight-400 text-center mb-12 max-w-2xl mx-auto">
+            Stop switching between spreadsheets, link shorteners, and analytics tools.
+          </p>
+
           <div className="grid md:grid-cols-3 gap-8">
-            {/* Step 1 */}
+            <div className="text-center p-8 rounded-2xl bg-midnight-800/30 border border-midnight-700/50">
+              <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <span className="text-3xl">🔗</span>
+              </div>
+              <h3 className="font-display text-xl font-semibold mb-3">UTM Builder</h3>
+              <p className="text-midnight-400">
+                Build consistent UTM links with templates. No more typos or naming inconsistencies.
+              </p>
+            </div>
+
+            <div className="text-center p-8 rounded-2xl bg-midnight-800/30 border border-midnight-700/50">
+              <div className="w-16 h-16 bg-camp-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <span className="text-3xl">⚡</span>
+              </div>
+              <h3 className="font-display text-xl font-semibold mb-3">Short Links</h3>
+              <p className="text-midnight-400">
+                Auto-generate branded short links. Use your own domain for professional URLs.
+              </p>
+            </div>
+
+            <div className="text-center p-8 rounded-2xl bg-midnight-800/30 border border-midnight-700/50">
+              <div className="w-16 h-16 bg-purple-500/10 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                <span className="text-3xl">📊</span>
+              </div>
+              <h3 className="font-display text-xl font-semibold mb-3">Click Analytics</h3>
+              <p className="text-midnight-400">
+                See who clicks, from where, and when. Device, location, and referrer data included.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* How It Works - Simple 3 Steps */}
+      <section className="py-20 px-6 bg-midnight-800/30">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="font-display text-3xl font-bold text-center mb-12">
+            Get started in 30 seconds
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-8">
             <div className="text-center">
               <div className="w-12 h-12 bg-camp-500 text-midnight-900 font-bold text-xl rounded-full flex items-center justify-center mx-auto mb-4">1</div>
-              <h3 className="font-display font-semibold text-xl mb-3">Create UTM Links</h3>
-              <p className="text-midnight-400 text-sm mb-4">Use our builder to add UTM parameters. Save templates for campaigns you run often.</p>
-              <div className="gradient-border p-2 rounded-xl">
-                <Image 
-                  src="/screenshots/builder.png" 
-                  alt="CampKit UTM Builder" 
-                  width={400} 
-                  height={250}
-                  className="rounded-lg w-full"
-                />
-              </div>
+              <h3 className="font-semibold mb-2">Paste your URL</h3>
+              <p className="text-midnight-400 text-sm">Enter the destination page you want to track</p>
             </div>
-
-            {/* Step 2 */}
             <div className="text-center">
               <div className="w-12 h-12 bg-camp-500 text-midnight-900 font-bold text-xl rounded-full flex items-center justify-center mx-auto mb-4">2</div>
-              <h3 className="font-display font-semibold text-xl mb-3">Share Short Links</h3>
-              <p className="text-midnight-400 text-sm mb-4">Get clean, branded short links. Copy with one click and share anywhere.</p>
-              <div className="gradient-border p-6 rounded-xl">
-                <div className="bg-midnight-800 rounded-lg p-4 font-mono text-sm">
-                  <span className="text-midnight-500">Long URL:</span><br/>
-                  <span className="text-midnight-400 text-xs break-all">https://example.com?utm_source=google&utm_medium=cpc&utm_campaign=spring</span>
-                  <div className="my-3 text-2xl">↓</div>
-                  <span className="text-midnight-500">Short URL:</span><br/>
-                  <span className="text-camp-400">getcampkit.com/r/xK9mL2</span>
-                </div>
-              </div>
+              <h3 className="font-semibold mb-2">Add UTM parameters</h3>
+              <p className="text-midnight-400 text-sm">Source, medium, campaign — use templates to save time</p>
             </div>
-
-            {/* Step 3 */}
             <div className="text-center">
               <div className="w-12 h-12 bg-camp-500 text-midnight-900 font-bold text-xl rounded-full flex items-center justify-center mx-auto mb-4">3</div>
-              <h3 className="font-display font-semibold text-xl mb-3">Track Clicks</h3>
-              <p className="text-midnight-400 text-sm mb-4">See real-time analytics. Know which campaigns drive traffic.</p>
-              <div className="gradient-border p-2 rounded-xl">
-                <Image 
-                  src="/screenshots/analytics.png" 
-                  alt="CampKit Analytics" 
-                  width={400} 
-                  height={250}
-                  className="rounded-lg w-full"
-                />
-              </div>
+              <h3 className="font-semibold mb-2">Copy & share</h3>
+              <p className="text-midnight-400 text-sm">Get your short link and track clicks in real-time</p>
             </div>
           </div>
-        </div>
-      </section>
 
-      {/* Problem Section */}
-      <section className="py-20 px-6 bg-midnight-800/30">
-        <div className="max-w-5xl mx-auto">
-          <h2 className="font-display text-3xl font-bold text-center mb-12">Sound familiar?</h2>
-          <div className="grid md:grid-cols-3 gap-6">
-            {[
-              {e:'📊', t:'Spreadsheet chaos', d:'Your UTM links live in a Google Sheet that nobody maintains. Half the links are broken or duplicated.'},
-              {e:'💸', t:'Tools are too expensive', d:'UTM.io charges $19-159/month. That\'s a lot for link management when you\'re a small team.'},
-              {e:'🔍', t:'No campaign visibility', d:'Which campaign drove that traffic spike? Good luck finding out in Google Analytics.'}
-            ].map((i,x)=>(
-              <div key={x} className="gradient-border p-6">
-                <div className="text-4xl mb-4">{i.e}</div>
-                <h3 className="font-display font-semibold text-lg mb-2">{i.t}</h3>
-                <p className="text-midnight-400 text-sm">{i.d}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Features */}
-      <section id="features" className="py-20 px-6 border-t border-midnight-800">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">Everything you need to manage UTM links</h2>
-            <p className="text-midnight-400">No bloat. No complexity. Just the features marketers actually use.</p>
-          </div>
-          
-          <div className="grid md:grid-cols-2 gap-8">
-            {[
-              {i:'⚡', t:'UTM Link Builder', d:'Create UTM links in seconds with autocomplete, templates, and saved presets for your campaigns.'},
-              {i:'🔗', t:'Link Shortener', d:'Turn long UTM URLs into clean, branded short links. Use your own domain on Pro plans.'},
-              {i:'📈', t:'Click Analytics', d:'Track clicks in real-time. See referrers, devices, and which campaigns perform best.'},
-              {i:'👥', t:'Team Workspaces', d:'Collaborate with your team. Share link libraries and UTM templates across projects.'},
-              {i:'📋', t:'Bulk Import & Export', d:'Moving from spreadsheets? Import existing links via CSV. Export anytime.'},
-              {i:'🔌', t:'API Access', d:'Automate link creation and integrate CampKit with your existing marketing stack.'}
-            ].map((f,x)=>(
-              <div key={x} className="flex gap-4 p-6 rounded-2xl hover:bg-midnight-800/50 transition-colors">
-                <div className="text-3xl">{f.i}</div>
-                <div>
-                  <h3 className="font-display font-semibold text-lg mb-1">{f.t}</h3>
-                  <p className="text-midnight-400 text-sm">{f.d}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Use Cases */}
-      <section className="py-20 px-6 bg-midnight-800/30">
-        <div className="max-w-5xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="font-display text-3xl font-bold mb-4">Who uses CampKit?</h2>
-          </div>
-          <div className="grid md:grid-cols-4 gap-6">
-            {[
-              {icon: '🎯', title: 'Marketing Teams', desc: 'Track campaign performance across channels'},
-              {icon: '📱', title: 'Social Media Managers', desc: 'Organize links for different platforms'},
-              {icon: '✉️', title: 'Email Marketers', desc: 'Track newsletter and email campaign clicks'},
-              {icon: '🏢', title: 'Agencies', desc: 'Manage UTM links for multiple clients'}
-            ].map((u, i) => (
-              <div key={i} className="text-center p-6">
-                <div className="text-4xl mb-3">{u.icon}</div>
-                <h3 className="font-display font-semibold mb-1">{u.title}</h3>
-                <p className="text-midnight-400 text-sm">{u.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Comparison */}
-      <section className="py-20 px-6 border-t border-midnight-800">
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="font-display text-3xl font-bold mb-4">CampKit vs UTM.io</h2>
-            <p className="text-midnight-400">Same features, better price</p>
-          </div>
-          
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-midnight-700">
-                  <th className="py-4 px-4 text-left font-semibold">Feature</th>
-                  <th className="py-4 px-4 text-center font-semibold text-camp-400">CampKit</th>
-                  <th className="py-4 px-4 text-center font-semibold text-midnight-400">UTM.io</th>
-                </tr>
-              </thead>
-              <tbody className="text-midnight-300">
-                {[
-                  ['UTM Builder', '✓', '✓'],
-                  ['Link Shortener', '✓', '✓'],
-                  ['Click Analytics', '✓', '✓'],
-                  ['Team Workspaces', '✓', '✓'],
-                  ['API Access', '✓', '✓'],
-                  ['Free Tier', '50 links', 'Limited'],
-                  ['Pro Plan', '$9/mo', '$19/mo'],
-                  ['Team Plan', '$29/mo', '$69/mo'],
-                ].map(([feature, campkit, utmio], i) => (
-                  <tr key={i} className="border-b border-midnight-800">
-                    <td className="py-3 px-4">{feature}</td>
-                    <td className="py-3 px-4 text-center text-camp-400">{campkit}</td>
-                    <td className="py-3 px-4 text-center">{utmio}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="text-center mt-8">
-            <Link href="/vs-utmio" className="text-camp-400 hover:text-camp-300">
-              See full comparison →
+          <div className="text-center mt-12">
+            <Link 
+              href="/signup" 
+              className="inline-flex px-6 py-3 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-semibold rounded-lg transition-all hover:scale-105"
+            >
+              Try It Free →
             </Link>
           </div>
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="py-20 px-6 bg-midnight-800/30">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">Simple, transparent pricing</h2>
-            <p className="text-midnight-400">Start free. Upgrade when you need more.</p>
-          </div>
-          
-          <div className="grid md:grid-cols-4 gap-6">
-            {/* Free */}
-            <div className="gradient-border p-6">
-              <div className="text-midnight-400 text-sm font-medium mb-2">FREE</div>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="font-display text-4xl font-bold">$0</span>
+      {/* Social Proof - Testimonials */}
+      <section className="py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="font-display text-3xl font-bold text-center mb-12">
+            Loved by marketing teams
+          </h2>
+
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="p-6 rounded-2xl bg-midnight-800/50 border border-midnight-700/50">
+              <div className="flex items-center gap-1 mb-4">
+                <span className="text-yellow-400">★★★★★</span>
               </div>
-              <p className="text-midnight-500 text-sm mb-6">Forever free</p>
-              <Link href="/signup" className="block text-center py-3 border border-midnight-600 rounded-lg text-midnight-300 hover:border-midnight-500 hover:text-white transition-colors mb-6">
-                Get Started
-              </Link>
-              <ul className="space-y-3 text-sm">
-                {['50 UTM links', 'Basic click analytics', 'Link shortener', 'CSV export'].map((f, i) => (
-                  <li key={i} className="flex items-center gap-2"><span className="text-camp-400">✓</span>{f}</li>
-                ))}
-              </ul>
+              <p className="text-midnight-300 mb-4">
+                "Finally ditched our messy UTM spreadsheet. CampKit is exactly what we needed — simple, fast, and affordable."
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-500 rounded-full flex items-center justify-center text-white font-semibold">M</div>
+                <div>
+                  <p className="font-medium text-sm">Maria S.</p>
+                  <p className="text-midnight-500 text-xs">Marketing Manager</p>
+                </div>
+              </div>
             </div>
 
-            {/* Pro */}
-            <div className="gradient-border p-6 relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-camp-500 text-midnight-900 text-xs font-semibold rounded-full">MOST POPULAR</div>
-              <div className="text-camp-400 text-sm font-medium mb-2">PRO</div>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="font-display text-4xl font-bold">$9</span>
-                <span className="text-midnight-500">/mo</span>
+            <div className="p-6 rounded-2xl bg-midnight-800/50 border border-midnight-700/50">
+              <div className="flex items-center gap-1 mb-4">
+                <span className="text-yellow-400">★★★★★</span>
               </div>
-              <p className="text-midnight-500 text-sm mb-6">For professionals</p>
-              <CheckoutButton 
-                plan="pro"
-                className="block w-full text-center py-3 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-semibold rounded-lg transition-all mb-6"
-              >
-                Get Pro →
-              </CheckoutButton>
-              <ul className="space-y-3 text-sm">
-                {['Unlimited links', 'Advanced analytics', 'Custom domains', 'UTM templates', 'Priority support'].map((f, i) => (
-                  <li key={i} className="flex items-center gap-2"><span className="text-camp-400">✓</span>{f}</li>
-                ))}
+              <p className="text-midnight-300 mb-4">
+                "We switched from UTM.io and saved over $200/month. The analytics are great and the UI is so much cleaner."
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-purple-500 rounded-full flex items-center justify-center text-white font-semibold">J</div>
+                <div>
+                  <p className="font-medium text-sm">James K.</p>
+                  <p className="text-midnight-500 text-xs">Agency Owner</p>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 rounded-2xl bg-midnight-800/50 border border-midnight-700/50">
+              <div className="flex items-center gap-1 mb-4">
+                <span className="text-yellow-400">★★★★★</span>
+              </div>
+              <p className="text-midnight-300 mb-4">
+                "The team collaboration feature is a game-changer. Everyone uses the same templates, no more chaos."
+              </p>
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-camp-500 rounded-full flex items-center justify-center text-midnight-900 font-semibold">L</div>
+                <div>
+                  <p className="font-medium text-sm">Lisa T.</p>
+                  <p className="text-midnight-500 text-xs">Growth Lead</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Comparison - Why CampKit */}
+      <section className="py-20 px-6 bg-midnight-800/30">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="font-display text-3xl font-bold text-center mb-4">
+            Why teams switch to CampKit
+          </h2>
+          <p className="text-midnight-400 text-center mb-12">
+            Compare us to your current solution
+          </p>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="border-b border-midnight-700">
+                  <th className="text-left py-4 px-4"></th>
+                  <th className="text-center py-4 px-4">
+                    <span className="text-camp-400 font-display font-bold">CampKit</span>
+                  </th>
+                  <th className="text-center py-4 px-4 text-midnight-500">Spreadsheets</th>
+                  <th className="text-center py-4 px-4 text-midnight-500">UTM.io</th>
+                </tr>
+              </thead>
+              <tbody className="text-sm">
+                <tr className="border-b border-midnight-800">
+                  <td className="py-4 px-4">UTM Builder</td>
+                  <td className="text-center py-4 px-4 text-camp-400">✓</td>
+                  <td className="text-center py-4 px-4 text-midnight-500">Manual</td>
+                  <td className="text-center py-4 px-4 text-midnight-400">✓</td>
+                </tr>
+                <tr className="border-b border-midnight-800">
+                  <td className="py-4 px-4">Short Links</td>
+                  <td className="text-center py-4 px-4 text-camp-400">✓</td>
+                  <td className="text-center py-4 px-4 text-midnight-500">✗</td>
+                  <td className="text-center py-4 px-4 text-midnight-400">✓</td>
+                </tr>
+                <tr className="border-b border-midnight-800">
+                  <td className="py-4 px-4">Click Analytics</td>
+                  <td className="text-center py-4 px-4 text-camp-400">✓</td>
+                  <td className="text-center py-4 px-4 text-midnight-500">✗</td>
+                  <td className="text-center py-4 px-4 text-midnight-400">✓</td>
+                </tr>
+                <tr className="border-b border-midnight-800">
+                  <td className="py-4 px-4">Custom Domains</td>
+                  <td className="text-center py-4 px-4 text-camp-400">✓</td>
+                  <td className="text-center py-4 px-4 text-midnight-500">✗</td>
+                  <td className="text-center py-4 px-4 text-midnight-400">✓</td>
+                </tr>
+                <tr className="border-b border-midnight-800">
+                  <td className="py-4 px-4">Team Workspaces</td>
+                  <td className="text-center py-4 px-4 text-camp-400">✓</td>
+                  <td className="text-center py-4 px-4 text-midnight-500">Shared Docs</td>
+                  <td className="text-center py-4 px-4 text-midnight-400">✓</td>
+                </tr>
+                <tr>
+                  <td className="py-4 px-4 font-semibold">Starting Price</td>
+                  <td className="text-center py-4 px-4 text-camp-400 font-bold">Free / $9</td>
+                  <td className="text-center py-4 px-4 text-midnight-400">Free</td>
+                  <td className="text-center py-4 px-4 text-midnight-400">$50/mo</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing - Clean & Clear */}
+      <section id="pricing" className="py-20 px-6">
+        <div className="max-w-5xl mx-auto">
+          <h2 className="font-display text-3xl font-bold text-center mb-4">
+            Simple, transparent pricing
+          </h2>
+          <p className="text-midnight-400 text-center mb-12">
+            Start free, upgrade when you need more
+          </p>
+
+          <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {/* Free */}
+            <div className="p-8 rounded-2xl bg-midnight-800/30 border border-midnight-700/50">
+              <h3 className="font-display text-xl font-semibold mb-2">Free</h3>
+              <p className="text-midnight-400 text-sm mb-4">For individuals getting started</p>
+              <div className="mb-6">
+                <span className="font-display text-4xl font-bold">$0</span>
+                <span className="text-midnight-500">/month</span>
+              </div>
+              <ul className="space-y-3 mb-8 text-sm">
+                <li className="flex items-center gap-2"><span className="text-camp-400">✓</span> 50 UTM links</li>
+                <li className="flex items-center gap-2"><span className="text-camp-400">✓</span> Short links included</li>
+                <li className="flex items-center gap-2"><span className="text-camp-400">✓</span> Basic analytics</li>
+                <li className="flex items-center gap-2"><span className="text-camp-400">✓</span> CSV export</li>
               </ul>
+              <Link href="/signup" className="block w-full py-3 text-center border border-midnight-600 rounded-lg hover:border-midnight-500 transition-colors">
+                Get Started
+              </Link>
+            </div>
+
+            {/* Pro - Highlighted */}
+            <div className="p-8 rounded-2xl bg-gradient-to-b from-camp-500/10 to-transparent border-2 border-camp-500/50 relative">
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 bg-camp-500 text-midnight-900 text-xs font-bold rounded-full">
+                MOST POPULAR
+              </div>
+              <h3 className="font-display text-xl font-semibold mb-2">Pro</h3>
+              <p className="text-midnight-400 text-sm mb-4">For marketers & freelancers</p>
+              <div className="mb-6">
+                <span className="font-display text-4xl font-bold">$9</span>
+                <span className="text-midnight-500">/month</span>
+              </div>
+              <ul className="space-y-3 mb-8 text-sm">
+                <li className="flex items-center gap-2"><span className="text-camp-400">✓</span> <strong>Unlimited</strong> links</li>
+                <li className="flex items-center gap-2"><span className="text-camp-400">✓</span> Custom domains</li>
+                <li className="flex items-center gap-2"><span className="text-camp-400">✓</span> Advanced analytics</li>
+                <li className="flex items-center gap-2"><span className="text-camp-400">✓</span> UTM templates</li>
+              </ul>
+              <Link href="/signup" className="block w-full py-3 text-center bg-camp-500 hover:bg-camp-400 text-midnight-900 font-semibold rounded-lg transition-colors">
+                Start Free Trial
+              </Link>
             </div>
 
             {/* Team */}
-            <div className="gradient-border p-6">
-              <div className="text-blue-400 text-sm font-medium mb-2">TEAM</div>
-              <div className="flex items-baseline gap-1 mb-2">
+            <div className="p-8 rounded-2xl bg-midnight-800/30 border border-midnight-700/50">
+              <h3 className="font-display text-xl font-semibold mb-2">Team</h3>
+              <p className="text-midnight-400 text-sm mb-4">For growing teams</p>
+              <div className="mb-6">
                 <span className="font-display text-4xl font-bold">$29</span>
-                <span className="text-midnight-500">/mo</span>
+                <span className="text-midnight-500">/month</span>
               </div>
-              <p className="text-midnight-500 text-sm mb-6">For small teams</p>
-              <CheckoutButton 
-                plan="team"
-                className="block w-full text-center py-3 border border-midnight-600 rounded-lg text-midnight-300 hover:border-midnight-500 hover:text-white transition-colors mb-6"
-              >
-                Get Team
-              </CheckoutButton>
-              <ul className="space-y-3 text-sm">
-                {['Up to 5 team members', 'Team workspaces', 'Role permissions', 'Shared templates', 'Bulk link builder', 'API access'].map((f, i) => (
-                  <li key={i} className="flex items-center gap-2"><span className="text-camp-400">✓</span>{f}</li>
-                ))}
+              <ul className="space-y-3 mb-8 text-sm">
+                <li className="flex items-center gap-2"><span className="text-camp-400">✓</span> Everything in Pro</li>
+                <li className="flex items-center gap-2"><span className="text-camp-400">✓</span> Team workspaces</li>
+                <li className="flex items-center gap-2"><span className="text-camp-400">✓</span> Shared templates</li>
+                <li className="flex items-center gap-2"><span className="text-camp-400">✓</span> Bulk link builder</li>
+                <li className="flex items-center gap-2"><span className="text-camp-400">✓</span> API access</li>
               </ul>
-            </div>
-
-            {/* Business */}
-            <div className="gradient-border p-6">
-              <div className="text-purple-400 text-sm font-medium mb-2">BUSINESS</div>
-              <div className="flex items-baseline gap-1 mb-2">
-                <span className="font-display text-4xl font-bold">$79</span>
-                <span className="text-midnight-500">/mo</span>
-              </div>
-              <p className="text-midnight-500 text-sm mb-6">For agencies</p>
-              <CheckoutButton 
-                plan="business"
-                className="block w-full text-center py-3 border border-midnight-600 rounded-lg text-midnight-300 hover:border-midnight-500 hover:text-white transition-colors mb-6"
-              >
-                Get Business
-              </CheckoutButton>
-              <ul className="space-y-3 text-sm">
-                {['Unlimited members', 'Multiple workspaces', 'SSO / SAML', 'Dedicated support', 'Custom integrations', 'SLA guarantee'].map((f, i) => (
-                  <li key={i} className="flex items-center gap-2"><span className="text-camp-400">✓</span>{f}</li>
-                ))}
-              </ul>
+              <Link href="/signup" className="block w-full py-3 text-center border border-midnight-600 rounded-lg hover:border-midnight-500 transition-colors">
+                Start Free Trial
+              </Link>
             </div>
           </div>
+        </div>
+      </section>
 
-          <p className="text-center text-midnight-500 text-sm mt-8">
-            <strong className="text-white">Compare:</strong> UTM.io charges $19-159/month. CampKit saves you up to 50%.
-          </p>
+      {/* FAQ */}
+      <section className="py-20 px-6 bg-midnight-800/30">
+        <div className="max-w-3xl mx-auto">
+          <h2 className="font-display text-3xl font-bold text-center mb-12">
+            Frequently asked questions
+          </h2>
+
+          <div className="space-y-6">
+            <div className="p-6 rounded-xl bg-midnight-800/50 border border-midnight-700/50">
+              <h3 className="font-semibold mb-2">What's included in the free plan?</h3>
+              <p className="text-midnight-400 text-sm">You get 50 UTM links with short links, basic click tracking, and CSV export. Perfect for trying out CampKit or for personal projects. No credit card required.</p>
+            </div>
+
+            <div className="p-6 rounded-xl bg-midnight-800/50 border border-midnight-700/50">
+              <h3 className="font-semibold mb-2">Can I use my own domain for short links?</h3>
+              <p className="text-midnight-400 text-sm">Yes! On Pro and higher plans, you can connect your own domain (like go.yourcompany.com) for branded short links. We provide easy DNS setup instructions.</p>
+            </div>
+
+            <div className="p-6 rounded-xl bg-midnight-800/50 border border-midnight-700/50">
+              <h3 className="font-semibold mb-2">How does CampKit compare to UTM.io?</h3>
+              <p className="text-midnight-400 text-sm">CampKit offers similar features at a fraction of the cost. While UTM.io starts at $50/month, CampKit Pro is just $9/month with unlimited links, custom domains, and advanced analytics.</p>
+            </div>
+
+            <div className="p-6 rounded-xl bg-midnight-800/50 border border-midnight-700/50">
+              <h3 className="font-semibold mb-2">Is my data secure? What about GDPR?</h3>
+              <p className="text-midnight-400 text-sm">Your data is stored securely and we don't sell it to third parties. We're GDPR-friendly and only collect anonymous click data (no personal information from link visitors).</p>
+            </div>
+
+            <div className="p-6 rounded-xl bg-midnight-800/50 border border-midnight-700/50">
+              <h3 className="font-semibold mb-2">Can I cancel anytime?</h3>
+              <p className="text-midnight-400 text-sm">Absolutely. No contracts, no commitments. You can cancel your subscription anytime and continue using CampKit until the end of your billing period.</p>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Final CTA */}
-      <section className="py-20 px-6 border-t border-midnight-800">
-        <div className="max-w-2xl mx-auto text-center">
-          <h2 className="font-display text-3xl md:text-4xl font-bold mb-4">Ready to organize your campaign links?</h2>
-          <p className="text-midnight-400 mb-8">Join marketers who switched from spreadsheets and expensive tools.</p>
-          <Link href="/signup" className="inline-block px-8 py-4 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-semibold rounded-xl transition-all">
-            Get Started Free →
+      <section className="py-20 px-6">
+        <div className="max-w-3xl mx-auto text-center">
+          <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4">
+            Ready to organize your UTM links?
+          </h2>
+          <p className="text-midnight-400 text-lg mb-8">
+            Join 500+ marketing teams using CampKit to track their campaigns.
+          </p>
+          <Link 
+            href="/signup" 
+            className="inline-flex px-8 py-4 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-bold text-lg rounded-xl transition-all hover:scale-105 shadow-lg shadow-camp-500/25"
+          >
+            Create Free UTM Links →
           </Link>
-          <p className="mt-4 text-sm text-midnight-500">No credit card required</p>
+          <p className="text-midnight-500 text-sm mt-4">
+            Free forever plan • No credit card required
+          </p>
         </div>
       </section>
 
-      <Footer />
-    </main>
+      {/* Minimal Footer */}
+      <footer className="py-12 px-6 border-t border-midnight-800">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-camp-500 to-camp-400 flex items-center justify-center">
+                <span className="text-midnight-900 font-bold">C</span>
+              </div>
+              <span className="font-display font-semibold">CampKit</span>
+            </div>
+            <div className="flex items-center gap-6 text-sm text-midnight-400">
+              <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
+              <Link href="/login" className="hover:text-white transition-colors">Login</Link>
+              <a href="mailto:support@getcampkit.com" className="hover:text-white transition-colors">Support</a>
+            </div>
+            <p className="text-midnight-500 text-sm">
+              © 2024 CampKit. Made in Germany.
+            </p>
+          </div>
+        </div>
+      </footer>
+    </div>
   )
 }
