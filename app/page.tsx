@@ -8,7 +8,7 @@ export default function Home() {
       <header className="fixed top-0 left-0 right-0 z-50 bg-midnight-900/90 backdrop-blur-xl border-b border-midnight-800/50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2">
-            <Image src="/logo.png" alt="CampKit" width={120} height={30} className="h-8 w-auto" />
+            <Image src="/logo.png" alt="CampKit" width={240} height={60} className="w-auto" style={{ height: '9rem' }} />
           </Link>
           <div className="flex items-center gap-6">
             <Link href="/blog" className="text-midnight-400 hover:text-white text-sm hidden sm:block">Blog</Link>
@@ -426,7 +426,7 @@ export default function Home() {
           <div className="grid md:grid-cols-4 gap-8 mb-8">
             <div>
               <Link href="/" className="flex items-center gap-2 mb-4">
-                <Image src="/logo.png" alt="CampKit" width={100} height={25} className="h-6 w-auto" />
+                <Image src="/logo.png" alt="CampKit" width={240} height={60} className="w-auto" style={{ height: '4rem' }} />
               </Link>
               <p className="text-midnight-500 text-sm">
                 The simple UTM link manager for marketing teams.
