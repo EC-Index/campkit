@@ -6,7 +6,12 @@ import { neon } from '@neondatabase/serverless'
 const sql = neon(process.env.DATABASE_URL!)
 
 // Admin emails that can access this panel
-const ADMIN_EMAILS = ['t.kiene@gmail.com']
+const ADMIN_EMAILS = [
+  't.kiene@gmail.com',
+  'th.kiene@gmail.com',
+  'th.kiene@googlemail.com',
+  't.kiene@googlemail.com'
+]
 
 export async function GET() {
   try {
