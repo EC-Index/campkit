@@ -479,12 +479,12 @@ export default function Home() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <Link href="/">
               <Image
-                src="/logo.png"
-                alt="CampKit"
-                width={200}
-                height={50}
-                className="h-20 w-auto"
-              />
+  src="/logo.png"
+  alt="CampKit"
+  width={250}
+  height={60}
+  unoptimized
+/>
             </Link>
             <div className="flex items-center gap-6 text-sm text-midnight-400">
               <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
@@ -501,5 +501,6 @@ export default function Home() {
     </div>
   )
 }
+
 
 
