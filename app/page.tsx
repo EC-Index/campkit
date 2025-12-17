@@ -248,10 +248,9 @@ export default function Home() {
         </div>
       </section>
 
-      {/* PRICING SECTION - IMPROVED */}
+      {/* PRICING SECTION */}
       <section id="pricing" className="py-20 px-6">
         <div className="max-w-6xl mx-auto">
-          {/* Headline */}
           <div className="text-center mb-6">
             <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4">
               Choose the right plan for your team
@@ -261,14 +260,12 @@ export default function Home() {
             </p>
           </div>
 
-          {/* Trust badges */}
           <div className="flex items-center justify-center gap-6 mb-8 text-midnight-500 text-sm">
             <span className="flex items-center gap-1">🔒 Secure payments</span>
             <span className="flex items-center gap-1">↩️ Cancel anytime</span>
             <span className="flex items-center gap-1">💳 No credit card for free</span>
           </div>
 
-          {/* Annual/Monthly Toggle */}
           <div className="flex items-center justify-center gap-4 mb-12">
             <span className={`text-sm ${!annual ? 'text-white' : 'text-midnight-500'}`}>Monthly</span>
             <button 
@@ -282,13 +279,10 @@ export default function Home() {
             </span>
           </div>
 
-          {/* Pricing Cards */}
           <div className="grid md:grid-cols-4 gap-6">
             {/* FREE */}
             <div className="p-6 rounded-2xl bg-midnight-800/30 border border-midnight-700/50">
-              <div className="mb-4">
-                <span className="text-2xl">🆓</span>
-              </div>
+              <div className="mb-4"><span className="text-2xl">🆓</span></div>
               <h3 className="font-display text-xl font-semibold mb-1">Free</h3>
               <p className="text-midnight-500 text-sm mb-4">Basic Link Shortening</p>
               <div className="mb-6">
@@ -307,14 +301,10 @@ export default function Home() {
               </Link>
             </div>
 
-            {/* PRO - HIGHLIGHTED */}
+            {/* PRO */}
             <div className="p-6 rounded-2xl bg-gradient-to-b from-camp-500/20 to-camp-500/5 border-2 border-camp-500 relative">
-              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-camp-500 text-midnight-900 text-xs font-bold rounded-full">
-                MOST POPULAR
-              </div>
-              <div className="mb-4">
-                <span className="text-2xl">⚡</span>
-              </div>
+              <div className="absolute -top-3 left-1/2 -translate-x-1/2 px-4 py-1 bg-camp-500 text-midnight-900 text-xs font-bold rounded-full">MOST POPULAR</div>
+              <div className="mb-4"><span className="text-2xl">⚡</span></div>
               <h3 className="font-display text-xl font-semibold mb-1">Pro</h3>
               <p className="text-midnight-500 text-sm mb-4">Custom Domains + Analytics</p>
               <div className="mb-6">
@@ -337,9 +327,7 @@ export default function Home() {
 
             {/* TEAM */}
             <div className="p-6 rounded-2xl bg-midnight-800/30 border border-midnight-700/50">
-              <div className="mb-4">
-                <span className="text-2xl">👥</span>
-              </div>
+              <div className="mb-4"><span className="text-2xl">👥</span></div>
               <h3 className="font-display text-xl font-semibold mb-1">Team</h3>
               <p className="text-midnight-500 text-sm mb-4">Collaboration + Templates</p>
               <div className="mb-6">
@@ -361,9 +349,7 @@ export default function Home() {
 
             {/* BUSINESS */}
             <div className="p-6 rounded-2xl bg-midnight-800/30 border border-midnight-700/50">
-              <div className="mb-4">
-                <span className="text-2xl">🏢</span>
-              </div>
+              <div className="mb-4"><span className="text-2xl">🏢</span></div>
               <h3 className="font-display text-xl font-semibold mb-1">Business</h3>
               <p className="text-midnight-500 text-sm mb-4">Unlimited Teams + API</p>
               <div className="mb-6">
@@ -384,14 +370,12 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Compare link */}
           <p className="text-center text-midnight-500 text-sm mt-8">
             <Link href="/compare" className="text-camp-400 hover:underline">Compare with UTM.io & Bitly →</Link>
             <span className="mx-2">•</span>
             All prices excl. VAT
           </p>
 
-          {/* Mini FAQ under Pricing */}
           <div className="mt-16 max-w-3xl mx-auto">
             <h3 className="font-display text-xl font-semibold text-center mb-8">Quick questions about pricing</h3>
             <div className="grid md:grid-cols-2 gap-4">
@@ -416,12 +400,10 @@ export default function Home() {
         </div>
       </section>
 
-      {/* FAQ - Expanded */}
+      {/* FAQ */}
       <section className="py-20 px-6 bg-midnight-800/30">
         <div className="max-w-3xl mx-auto">
-          <h2 className="font-display text-3xl font-bold text-center mb-12">
-            Frequently asked questions
-          </h2>
+          <h2 className="font-display text-3xl font-bold text-center mb-12">Frequently asked questions</h2>
 
           <div className="space-y-6">
             <div className="p-6 rounded-xl bg-midnight-800/50 border border-midnight-700/50">
@@ -455,21 +437,15 @@ export default function Home() {
       {/* Final CTA */}
       <section className="py-20 px-6">
         <div className="max-w-3xl mx-auto text-center">
-          <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4">
-            Ready to organize your UTM links?
-          </h2>
-          <p className="text-midnight-400 text-lg mb-8">
-            Join 500+ marketing teams who stopped spreadsheet chaos.
-          </p>
+          <h2 className="font-display text-3xl sm:text-4xl font-bold mb-4">Ready to organize your UTM links?</h2>
+          <p className="text-midnight-400 text-lg mb-8">Join 500+ marketing teams who stopped spreadsheet chaos.</p>
           <Link 
             href="/signup" 
             className="inline-flex px-8 py-4 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-bold text-lg rounded-xl transition-all hover:scale-105 shadow-lg shadow-camp-500/25"
           >
             Start Free — No Credit Card
           </Link>
-          <p className="text-midnight-500 text-sm mt-4">
-            Free forever plan • Setup in 30 seconds
-          </p>
+          <p className="text-midnight-500 text-sm mt-4">Free forever plan • Setup in 30 seconds</p>
         </div>
       </section>
 
@@ -478,38 +454,21 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <Link href="/">
-              <Image
-  src="/logo.png"
-  alt="CampKit"
-  width={200}
-  height={50}
-  className="h-14 w-auto"
-/>
+              <Image src="/logo.png" alt="CampKit" width={200} height={50} className="h-14 w-auto" />
             </Link>
             <div className="flex items-center gap-6 text-sm text-midnight-400 flex-wrap justify-center">
-  <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-  <Link href="/compare" className="hover:text-white transition-colors">Compare</Link>
-  <Link href="/login" className="hover:text-white transition-colors">Login</Link>
-  <Link href="/imprint" className="hover:text-white transition-colors">Imprint</Link>
-  <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
-  <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
-  <a href="mailto:service@getcampkit.com" className="hover:text-white transition-colors">Support</a>
-</div>
-            <p className="text-midnight-500 text-sm">
-              © 2024 CampKit. Made in Germany 🇩🇪
-            </p>
+              <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
+              <Link href="/compare" className="hover:text-white transition-colors">Compare</Link>
+              <Link href="/login" className="hover:text-white transition-colors">Login</Link>
+              <Link href="/imprint" className="hover:text-white transition-colors">Imprint</Link>
+              <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+              <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+              <a href="mailto:service@getcampkit.com" className="hover:text-white transition-colors">Support</a>
+            </div>
+            <p className="text-midnight-500 text-sm">© 2024 CampKit. Made in Germany 🇩🇪</p>
           </div>
         </div>
       </footer>
     </div>
   )
 }
-
-
-
-
-
-
-
-
-

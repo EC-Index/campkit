@@ -4,6 +4,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
 import { Suspense } from 'react'
+import AdvancedAnalytics from '@/app/components/AdvancedAnalytics'
 
 type LinkItem = { id: number; destination_url: string; utm_source: string|null; utm_medium: string|null; utm_campaign: string|null; utm_term: string|null; utm_content: string|null; short_code: string|null; title: string|null; clicks: number; created_at: string; team_id: number|null; custom_domain: string|null }
 type ClickItem = { id: number; clicked_at: string; ip_address: string; user_agent: string; referer: string; device?: string; browser?: string; os?: string; country?: string; city?: string }
@@ -303,6 +304,11 @@ function DashboardContent() {
           </div>
         </div>
 
+        {/* ========== Advanced Analytics (Pro/Team/Business only) ========== */}
+        {plan !== 'free' && (
+          <AdvancedAnalytics teamId={selectedTeamId} />
+        )}
+
         {/* ========== Tabs with Tooltips ========== */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-2">
@@ -573,7 +579,6 @@ function DashboardContent() {
               Create a short link with built-in UTM tracking and see exactly which campaigns drive clicks. No spreadsheets, no Google Analytics setup.
             </p>
             
-            {/* Use Cases */}
             <p className="text-midnight-500 text-sm mb-4">Typical use cases:</p>
             <div className="flex flex-wrap justify-center gap-3 mb-10">
               <span className="px-4 py-2 bg-midnight-800 text-midnight-300 rounded-lg">Google Ads</span>
