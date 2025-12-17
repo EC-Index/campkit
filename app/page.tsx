@@ -22,8 +22,8 @@ export default function Home() {
             <Image
               src="/logo.png"
               alt="CampKit"
-              width={140}
-              height={36}
+              width={200}
+              height={50}
               className="h-9 w-auto"
             />
           </Link>
@@ -483,8 +483,8 @@ export default function Home() {
               <Image
                 src="/logo.png"
                 alt="CampKit"
-                width={140}
-                height={36}
+                width={200}
+                height={50}
                 className="h-20 w-auto"
               />
             </Link>
