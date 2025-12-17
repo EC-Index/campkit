@@ -72,14 +72,16 @@ export default function AdminPage() {
   const fetchAdminData = async () => {
     try {
       const res = await fetch('/api/admin')
+      const data = await res.json()
+      
       if (!res.ok) {
         if (res.status === 401) {
-          setError('Unauthorized - Admin access only')
+          setError(`Unauthorized - Email: ${data.debug?.userEmail || 'unknown'} | Session: ${data.debug?.sessionExists ? 'yes' : 'no'}`)
           return
         }
         throw new Error('Failed to fetch')
       }
-      const data = await res.json()
+      
       setStats(data.stats)
       setRecentUsers(data.recentUsers || [])
       setActiveUsers(data.activeUsers || [])

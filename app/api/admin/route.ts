@@ -17,8 +17,16 @@ export async function GET() {
   try {
     const session = await getServerSession(authOptions)
     
-    if (!session?.user?.email || !ADMIN_EMAILS.includes(session.user.email)) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    const userEmail = session?.user?.email?.toLowerCase() || ''
+    const isAdmin = ADMIN_EMAILS.some(email => email.toLowerCase() === userEmail)
+    
+    console.log('Admin check:', { userEmail, isAdmin, sessionExists: !!session })
+    
+    if (!session || !isAdmin) {
+      return NextResponse.json({ 
+        error: 'Unauthorized', 
+        debug: { userEmail, sessionExists: !!session }
+      }, { status: 401 })
     }
 
     // Get total users
