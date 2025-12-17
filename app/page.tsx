@@ -481,9 +481,9 @@ export default function Home() {
               <Image
   src="/logo.png"
   alt="CampKit"
-  width={250}
-  height={60}
-  unoptimized
+  width={200}
+  height={50}
+  className="h-14 w-auto"
 />
             </Link>
             <div className="flex items-center gap-6 text-sm text-midnight-400">
