@@ -476,12 +476,15 @@ export default function Home() {
       <footer className="py-12 px-6 border-t border-midnight-800">
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-camp-500 to-camp-400 flex items-center justify-center">
-                <span className="text-midnight-900 font-bold">C</span>
-              </div>
-              <span className="font-display font-semibold">CampKit</span>
-            </div>
+            <Link href="/">
+    <Image
+      src="/logo.png"
+      alt="CampKit"
+      width={140}
+      height={36}
+      className="h-9 w-auto"
+    />
+</Link>
             <div className="flex items-center gap-6 text-sm text-midnight-400">
               <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
               <Link href="/compare" className="hover:text-white transition-colors">Compare</Link>
