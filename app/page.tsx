@@ -18,12 +18,15 @@ export default function Home() {
       {/* Minimal Sticky Header */}
       <header className="fixed top-0 left-0 right-0 z-50 bg-midnight-900/90 backdrop-blur-xl border-b border-midnight-800/50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-camp-500 to-camp-400 flex items-center justify-center">
-              <span className="text-midnight-900 font-bold text-lg">C</span>
-            </div>
-            <span className="font-display font-semibold text-lg">CampKit</span>
-          </div>
+          <Link href="/">
+            <Image
+              src="/logo.png"
+              alt="CampKit"
+              width={140}
+              height={36}
+              className="h-9 w-auto"
+            />
+          </Link>
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-midnight-400 hover:text-white text-sm hidden sm:block">Login</Link>
             <Link 
@@ -477,14 +480,14 @@ export default function Home() {
         <div className="max-w-6xl mx-auto">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <Link href="/">
-    <Image
-      src="/logo.png"
-      alt="CampKit"
-      width={140}
-      height={36}
-      className="h-9 w-auto"
-    />
-</Link>
+              <Image
+                src="/logo.png"
+                alt="CampKit"
+                width={140}
+                height={36}
+                className="h-9 w-auto"
+              />
+            </Link>
             <div className="flex items-center gap-6 text-sm text-midnight-400">
               <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
               <Link href="/compare" className="hover:text-white transition-colors">Compare</Link>
