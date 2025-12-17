@@ -487,12 +487,15 @@ export default function HomeDE() {
                 className="h-36 w-auto"
               />
             </Link>
-            <div className="flex items-center gap-6 text-sm text-midnight-400">
+            <div className="flex items-center gap-6 text-sm text-midnight-400 flex-wrap justify-center">
               <a href="#preise" className="hover:text-white transition-colors">Preise</a>
               <Link href="/compare" className="hover:text-white transition-colors">Vergleich</Link>
               <Link href="/login" className="hover:text-white transition-colors">Anmelden</Link>
               <Link href="/" className="hover:text-white transition-colors">English</Link>
-              <a href="mailto:support@getcampkit.com" className="hover:text-white transition-colors">Support</a>
+              <Link href="/impressum" className="hover:text-white transition-colors">Impressum</Link>
+              <Link href="/datenschutz" className="hover:text-white transition-colors">Datenschutz</Link>
+              <Link href="/agb" className="hover:text-white transition-colors">AGB</Link>
+              <a href="mailto:service@getcampkit.com" className="hover:text-white transition-colors">Support</a>
             </div>
             <p className="text-midnight-500 text-sm">
               © 2024 CampKit. Made in Germany 🇩🇪

@@ -285,6 +285,12 @@ export default function NoMoreSpreadsheetsDE() {
           <Link href="/de">
             <Image src="/logo.png" alt="CampKit" width={180} height={45} className="h-36 w-auto" />
           </Link>
+          <div className="flex items-center gap-6 text-sm text-midnight-400 flex-wrap justify-center">
+            <Link href="/impressum" className="hover:text-white transition-colors">Impressum</Link>
+            <Link href="/datenschutz" className="hover:text-white transition-colors">Datenschutz</Link>
+            <Link href="/agb" className="hover:text-white transition-colors">AGB</Link>
+            <a href="mailto:service@getcampkit.com" className="hover:text-white transition-colors">Support</a>
+          </div>
           <p className="text-midnight-500 text-sm">© 2024 CampKit. Made in Germany 🇩🇪</p>
         </div>
       </footer>

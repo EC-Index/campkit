@@ -486,12 +486,15 @@ export default function Home() {
   className="h-14 w-auto"
 />
             </Link>
-            <div className="flex items-center gap-6 text-sm text-midnight-400">
-              <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
-              <Link href="/compare" className="hover:text-white transition-colors">Compare</Link>
-              <Link href="/login" className="hover:text-white transition-colors">Login</Link>
-              <a href="mailto:support@getcampkit.com" className="hover:text-white transition-colors">Support</a>
-            </div>
+            <div className="flex items-center gap-6 text-sm text-midnight-400 flex-wrap justify-center">
+  <a href="#pricing" className="hover:text-white transition-colors">Pricing</a>
+  <Link href="/compare" className="hover:text-white transition-colors">Compare</Link>
+  <Link href="/login" className="hover:text-white transition-colors">Login</Link>
+  <Link href="/imprint" className="hover:text-white transition-colors">Imprint</Link>
+  <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
+  <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
+  <a href="mailto:service@getcampkit.com" className="hover:text-white transition-colors">Support</a>
+</div>
             <p className="text-midnight-500 text-sm">
               © 2024 CampKit. Made in Germany 🇩🇪
             </p>
@@ -501,6 +504,8 @@ export default function Home() {
     </div>
   )
 }
+
+
 
 
 
