@@ -9,28 +9,51 @@ export async function GET() {
   try {
     const sql = neon(process.env.DATABASE_URL)
 
-    // Get users
+    // Get users with tracking data
     let users: any[] = []
     try {
-      users = await sql`SELECT id, email, plan, created_at FROM users ORDER BY created_at DESC LIMIT 50`
+      users = await sql`
+        SELECT 
+          id, 
+          email, 
+          plan, 
+          created_at,
+          utm_source,
+          utm_medium,
+          utm_campaign,
+          referrer,
+          gclid,
+          country,
+          city,
+          device_type,
+          signup_page
+        FROM users 
+        ORDER BY created_at DESC 
+        LIMIT 100
+      `
     } catch (e: any) {
-      return NextResponse.json({ error: 'Users query failed', detail: e.message }, { status: 500 })
+      // Fallback if tracking columns don't exist yet
+      try {
+        users = await sql`SELECT id, email, plan, created_at FROM users ORDER BY created_at DESC LIMIT 100`
+        users = users.map(u => ({ ...u, utm_source: null, utm_medium: null, utm_campaign: null, referrer: null, gclid: null, device_type: null }))
+      } catch {
+        return NextResponse.json({ error: 'Users query failed', detail: e.message }, { status: 500 })
+      }
     }
 
-    // Get links (without clicks column)
+    // Get links
     let links: any[] = []
     try {
       links = await sql`SELECT id, short_code, created_at, user_id, destination_url, utm_source, utm_medium, utm_campaign FROM links ORDER BY created_at DESC LIMIT 30`
     } catch (e: any) {
-      return NextResponse.json({ error: 'Links query failed', detail: e.message }, { status: 500 })
+      links = []
     }
 
     // Get click counts from clicks table
     let clickCounts: any[] = []
     try {
       clickCounts = await sql`SELECT link_id, COUNT(*) as clicks FROM clicks GROUP BY link_id`
-    } catch (e: any) {
-      // clicks table might not exist or have different structure
+    } catch {
       clickCounts = []
     }
 
@@ -42,20 +65,28 @@ export async function GET() {
     }))
 
     // Count totals
-    const totalUsers = users.length
-    const totalLinks = links.length
-    
+    let totalUsers = 0
+    let totalLinks = 0
     let totalClicks = 0
+    let todayUsers = 0
+    let todayLinks = 0
+    let proUsers = 0
+
+    try {
+      const result = await sql`SELECT COUNT(*) as count FROM users`
+      totalUsers = Number(result[0]?.count || 0)
+    } catch {}
+    
+    try {
+      const result = await sql`SELECT COUNT(*) as count FROM links`
+      totalLinks = Number(result[0]?.count || 0)
+    } catch {}
+
     try {
       const result = await sql`SELECT COUNT(*) as count FROM clicks`
       totalClicks = Number(result[0]?.count || 0)
-    } catch {
-      totalClicks = 0
-    }
+    } catch {}
 
-    // Get today's counts
-    let todayUsers = 0
-    let todayLinks = 0
     try {
       const result = await sql`SELECT COUNT(*) as count FROM users WHERE created_at >= CURRENT_DATE`
       todayUsers = Number(result[0]?.count || 0)
@@ -66,11 +97,49 @@ export async function GET() {
       todayLinks = Number(result[0]?.count || 0)
     } catch {}
 
-    // Count pro users
-    let proUsers = 0
     try {
       const result = await sql`SELECT COUNT(*) as count FROM users WHERE plan IS NOT NULL AND plan != 'free'`
       proUsers = Number(result[0]?.count || 0)
+    } catch {}
+
+    // Traffic sources breakdown
+    let trafficSources: any[] = []
+    try {
+      trafficSources = await sql`
+        SELECT 
+          COALESCE(utm_source, 'direct') as source,
+          COUNT(*) as count
+        FROM users
+        GROUP BY utm_source
+        ORDER BY count DESC
+        LIMIT 10
+      `
+    } catch {
+      trafficSources = []
+    }
+
+    // Signups by campaign
+    let campaignSignups: any[] = []
+    try {
+      campaignSignups = await sql`
+        SELECT 
+          utm_campaign as campaign,
+          COUNT(*) as count
+        FROM users
+        WHERE utm_campaign IS NOT NULL
+        GROUP BY utm_campaign
+        ORDER BY count DESC
+        LIMIT 10
+      `
+    } catch {
+      campaignSignups = []
+    }
+
+    // Google Ads signups (has gclid)
+    let googleAdsSignups = 0
+    try {
+      const result = await sql`SELECT COUNT(*) as count FROM users WHERE gclid IS NOT NULL`
+      googleAdsSignups = Number(result[0]?.count || 0)
     } catch {}
 
     // Add user email to links
@@ -104,9 +173,12 @@ export async function GET() {
         todayClicks: 0,
         weekUsers: 0,
         proUsers,
+        googleAdsSignups,
         conversionRate: totalUsers > 0 ? ((proUsers / totalUsers) * 100).toFixed(1) : '0',
         avgLinksPerUser: totalUsers > 0 ? (totalLinks / totalUsers).toFixed(1) : '0',
       },
+      trafficSources,
+      campaignSignups,
       recentUsers: usersWithStats.slice(0, 10),
       activeUsers: [...usersWithStats].sort((a, b) => b.link_count - a.link_count).slice(0, 10),
       recentLinks: linksWithUser,
