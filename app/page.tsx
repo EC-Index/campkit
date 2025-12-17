@@ -24,7 +24,7 @@ export default function Home() {
               alt="CampKit"
               width={200}
               height={50}
-              className="h-9 w-auto"
+              className="h-14 w-auto"
             />
           </Link>
           <div className="flex items-center gap-4">
@@ -503,3 +503,4 @@ export default function Home() {
     </div>
   )
 }
+
