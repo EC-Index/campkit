@@ -22,9 +22,7 @@ export default function Home() {
             <Image
               src="/logo.png"
               alt="CampKit"
-              width={200}
-              height={50}
-              className="h-14 w-auto"
+              width={250} height={60} className="h-auto w-auto"
             />
           </Link>
           <div className="flex items-center gap-4">
@@ -503,4 +501,5 @@ export default function Home() {
     </div>
   )
 }
+
 
