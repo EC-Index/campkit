@@ -15,7 +15,7 @@ const analyticsDataClient = new BetaAnalyticsDataClient({
 const PROPERTY_ID = process.env.GA_PROPERTY_ID || '516656871'
 
 // Admin emails that can access this endpoint
-const ADMIN_EMAILS = ['th.kiene@googlemail.com', 'service@getcampkit.com']
+const ADMIN_EMAILS = ['th.kiene@gmail.com', 'th.kiene@googlemail.com', 'service@getcampkit.com']
 
 export async function GET(req: NextRequest) {
   try {
