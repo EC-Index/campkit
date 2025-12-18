@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { BetaAnalyticsDataClient } from '@google-analytics/data'
+export const dynamic = 'force-dynamic'
 
 // Initialize the Analytics Data client
 const analyticsDataClient = new BetaAnalyticsDataClient({
