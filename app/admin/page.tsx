@@ -56,6 +56,23 @@ type DayData = {
   count: number
 }
 
+type AnalyticsData = {
+  overview: {
+    activeUsers: number
+    sessions: number
+    pageViews: number
+    avgSessionDuration: number
+    bounceRate: number
+    newUsers: number
+  }
+  channels: { channel: string; sessions: number; users: number }[]
+  pages: { path: string; views: number; avgDuration: number }[]
+  countries: { country: string; users: number }[]
+  devices: { device: string; users: number; sessions: number }[]
+  daily: { date: string; users: number; sessions: number }[]
+  period: number
+}
+
 export default function AdminPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -68,18 +85,29 @@ export default function AdminPage() {
   const [trafficSources, setTrafficSources] = useState<TrafficSource[]>([])
   const [signupsPerDay, setSignupsPerDay] = useState<DayData[]>([])
   const [linksPerDay, setLinksPerDay] = useState<DayData[]>([])
-  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'links' | 'sources'>('overview')
+  const [activeTab, setActiveTab] = useState<'overview' | 'users' | 'links' | 'sources' | 'website'>('overview')
   const [error, setError] = useState<string | null>(null)
+  
+  // Analytics state
+  const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
+  const [analyticsLoading, setAnalyticsLoading] = useState(false)
+  const [analyticsPeriod, setAnalyticsPeriod] = useState(7)
 
   useEffect(() => {
     fetchAdminData()
   }, [])
 
+  useEffect(() => {
+    if (activeTab === 'website') {
+      fetchAnalytics()
+    }
+  }, [activeTab, analyticsPeriod])
+
   const fetchAdminData = async () => {
     try {
       const res = await fetch('/api/admin')
       const data = await res.json()
-      
+
       if (!res.ok) {
         if (res.status === 401) {
           setError(`Unauthorized`)
@@ -87,7 +115,7 @@ export default function AdminPage() {
         }
         throw new Error(data.error || 'Failed to fetch')
       }
-      
+
       setStats(data.stats)
       setRecentUsers(data.recentUsers || [])
       setActiveUsers(data.activeUsers || [])
@@ -103,9 +131,41 @@ export default function AdminPage() {
     }
   }
 
-  const formatDate = (d: string) => new Date(d).toLocaleDateString('de-DE', { 
-    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' 
+  const fetchAnalytics = async () => {
+    setAnalyticsLoading(true)
+    try {
+      const res = await fetch(`/api/admin/analytics?period=${analyticsPeriod}`)
+      const data = await res.json()
+      
+      if (res.ok) {
+        setAnalytics(data)
+      } else {
+        console.error('Analytics error:', data.error)
+      }
+    } catch (err) {
+      console.error('Failed to fetch analytics:', err)
+    } finally {
+      setAnalyticsLoading(false)
+    }
+  }
+
+  const formatDate = (d: string) => new Date(d).toLocaleDateString('de-DE', {
+    day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit'
   })
+
+  const formatDuration = (seconds: number) => {
+    const mins = Math.floor(seconds / 60)
+    const secs = Math.floor(seconds % 60)
+    return `${mins}:${secs.toString().padStart(2, '0')}`
+  }
+
+  const formatAnalyticsDate = (dateStr: string) => {
+    if (!dateStr || dateStr.length !== 8) return dateStr
+    const year = dateStr.slice(0, 4)
+    const month = dateStr.slice(4, 6)
+    const day = dateStr.slice(6, 8)
+    return `${day}.${month}`
+  }
 
   const getPlanBadge = (plan: string | null) => {
     switch (plan) {
@@ -118,7 +178,7 @@ export default function AdminPage() {
 
   const getSourceBadge = (source: string | null | undefined) => {
     if (!source) return <span className="text-midnight-500 text-xs">direct</span>
-    
+
     const colors: Record<string, string> = {
       'google': 'bg-blue-500/20 text-blue-400',
       'facebook': 'bg-indigo-500/20 text-indigo-400',
@@ -137,6 +197,35 @@ export default function AdminPage() {
       'desktop': '💻',
     }
     return <span className="text-xs">{icons[device] || '🖥️'} {device}</span>
+  }
+
+  const getChannelColor = (channel: string) => {
+    const colors: Record<string, string> = {
+      'Organic Search': 'bg-green-500',
+      'Direct': 'bg-blue-500',
+      'Paid Search': 'bg-yellow-500',
+      'Organic Social': 'bg-pink-500',
+      'Paid Social': 'bg-purple-500',
+      'Referral': 'bg-orange-500',
+      'Email': 'bg-cyan-500',
+    }
+    return colors[channel] || 'bg-midnight-500'
+  }
+
+  const getCountryFlag = (country: string) => {
+    const flags: Record<string, string> = {
+      'Germany': '🇩🇪',
+      'United States': '🇺🇸',
+      'Austria': '🇦🇹',
+      'Switzerland': '🇨🇭',
+      'United Kingdom': '🇬🇧',
+      'France': '🇫🇷',
+      'Netherlands': '🇳🇱',
+      'Canada': '🇨🇦',
+      'Australia': '🇦🇺',
+      'India': '🇮🇳',
+    }
+    return flags[country] || '🌍'
   }
 
   if (loading) {
@@ -221,32 +310,220 @@ export default function AdminPage() {
         </div>
 
         {/* Tabs */}
-        <div className="flex items-center gap-2 mb-6 border-b border-midnight-800 pb-4">
-          <button 
-            onClick={() => setActiveTab('overview')} 
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'overview' ? 'bg-camp-500 text-midnight-900' : 'text-midnight-400 hover:text-white hover:bg-midnight-800'}`}
+        <div className="flex items-center gap-2 mb-6 border-b border-midnight-800 pb-4 overflow-x-auto">
+          <button
+            onClick={() => setActiveTab('overview')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'overview' ? 'bg-camp-500 text-midnight-900' : 'text-midnight-400 hover:text-white hover:bg-midnight-800'}`}
           >
             📊 Overview
           </button>
-          <button 
-            onClick={() => setActiveTab('users')} 
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'users' ? 'bg-camp-500 text-midnight-900' : 'text-midnight-400 hover:text-white hover:bg-midnight-800'}`}
+          <button
+            onClick={() => setActiveTab('website')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'website' ? 'bg-camp-500 text-midnight-900' : 'text-midnight-400 hover:text-white hover:bg-midnight-800'}`}
+          >
+            🌐 Website Traffic
+          </button>
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'users' ? 'bg-camp-500 text-midnight-900' : 'text-midnight-400 hover:text-white hover:bg-midnight-800'}`}
           >
             👥 All Users ({allUsers.length})
           </button>
-          <button 
-            onClick={() => setActiveTab('sources')} 
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'sources' ? 'bg-camp-500 text-midnight-900' : 'text-midnight-400 hover:text-white hover:bg-midnight-800'}`}
+          <button
+            onClick={() => setActiveTab('sources')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'sources' ? 'bg-camp-500 text-midnight-900' : 'text-midnight-400 hover:text-white hover:bg-midnight-800'}`}
           >
             📈 Traffic Sources
           </button>
-          <button 
-            onClick={() => setActiveTab('links')} 
-            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors ${activeTab === 'links' ? 'bg-camp-500 text-midnight-900' : 'text-midnight-400 hover:text-white hover:bg-midnight-800'}`}
+          <button
+            onClick={() => setActiveTab('links')}
+            className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors whitespace-nowrap ${activeTab === 'links' ? 'bg-camp-500 text-midnight-900' : 'text-midnight-400 hover:text-white hover:bg-midnight-800'}`}
           >
             🔗 Recent Links
           </button>
         </div>
+
+        {/* Website Traffic Tab */}
+        {activeTab === 'website' && (
+          <div>
+            {/* Period Selector */}
+            <div className="flex items-center gap-2 mb-6">
+              <span className="text-midnight-400 text-sm">Period:</span>
+              {[7, 14, 30, 90].map(days => (
+                <button
+                  key={days}
+                  onClick={() => setAnalyticsPeriod(days)}
+                  className={`px-3 py-1.5 rounded-lg text-sm transition-colors ${
+                    analyticsPeriod === days 
+                      ? 'bg-camp-500 text-midnight-900 font-medium' 
+                      : 'bg-midnight-800 text-midnight-400 hover:text-white'
+                  }`}
+                >
+                  {days}d
+                </button>
+              ))}
+              {analyticsLoading && (
+                <div className="w-4 h-4 border-2 border-camp-500 border-t-transparent rounded-full animate-spin ml-2"></div>
+              )}
+            </div>
+
+            {analytics ? (
+              <>
+                {/* Overview KPIs */}
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-6">
+                  <div className="p-4 rounded-xl bg-gradient-to-br from-green-500/20 to-green-500/5 border border-green-500/30">
+                    <p className="text-midnight-400 text-xs mb-1">Active Users</p>
+                    <p className="font-display text-3xl font-bold text-green-400">{analytics.overview.activeUsers}</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-midnight-800/50 border border-midnight-700">
+                    <p className="text-midnight-400 text-xs mb-1">Sessions</p>
+                    <p className="font-display text-3xl font-bold">{analytics.overview.sessions}</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-midnight-800/50 border border-midnight-700">
+                    <p className="text-midnight-400 text-xs mb-1">Page Views</p>
+                    <p className="font-display text-3xl font-bold">{analytics.overview.pageViews}</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-midnight-800/50 border border-midnight-700">
+                    <p className="text-midnight-400 text-xs mb-1">Avg. Duration</p>
+                    <p className="font-display text-3xl font-bold">{formatDuration(analytics.overview.avgSessionDuration)}</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-midnight-800/50 border border-midnight-700">
+                    <p className="text-midnight-400 text-xs mb-1">Bounce Rate</p>
+                    <p className="font-display text-3xl font-bold">{analytics.overview.bounceRate.toFixed(1)}%</p>
+                  </div>
+                  <div className="p-4 rounded-xl bg-midnight-800/50 border border-midnight-700">
+                    <p className="text-midnight-400 text-xs mb-1">New Users</p>
+                    <p className="font-display text-3xl font-bold">{analytics.overview.newUsers}</p>
+                  </div>
+                </div>
+
+                {/* Charts Row */}
+                <div className="grid lg:grid-cols-2 gap-6 mb-6">
+                  {/* Daily Users Chart */}
+                  <div className="p-6 rounded-xl bg-midnight-800/30 border border-midnight-700">
+                    <h3 className="font-semibold mb-4">📈 Daily Users & Sessions</h3>
+                    <div className="h-48 flex items-end gap-1">
+                      {analytics.daily.map((day, i) => {
+                        const maxUsers = Math.max(...analytics.daily.map(d => d.users))
+                        const height = maxUsers > 0 ? (day.users / maxUsers) * 100 : 0
+                        return (
+                          <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                            <div 
+                              className="w-full bg-camp-500/50 rounded-t hover:bg-camp-500/70 transition-colors"
+                              style={{ height: `${height}%`, minHeight: day.users > 0 ? '4px' : '0' }}
+                              title={`${day.users} users`}
+                            />
+                            <span className="text-[10px] text-midnight-500">{formatAnalyticsDate(day.date)}</span>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Traffic Channels */}
+                  <div className="p-6 rounded-xl bg-midnight-800/30 border border-midnight-700">
+                    <h3 className="font-semibold mb-4">🚦 Traffic Channels</h3>
+                    <div className="space-y-3">
+                      {analytics.channels.slice(0, 6).map((channel, i) => {
+                        const max = Math.max(...analytics.channels.map(c => c.sessions))
+                        const width = max > 0 ? (channel.sessions / max) * 100 : 0
+                        return (
+                          <div key={i}>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm">{channel.channel}</span>
+                              <span className="text-sm font-bold">{channel.sessions}</span>
+                            </div>
+                            <div className="bg-midnight-800 rounded-full h-2 overflow-hidden">
+                              <div
+                                className={`h-full rounded-full ${getChannelColor(channel.channel)}`}
+                                style={{ width: `${width}%` }}
+                              />
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Bottom Row */}
+                <div className="grid lg:grid-cols-3 gap-6">
+                  {/* Top Pages */}
+                  <div className="p-6 rounded-xl bg-midnight-800/30 border border-midnight-700">
+                    <h3 className="font-semibold mb-4">📄 Top Pages</h3>
+                    <div className="space-y-2">
+                      {analytics.pages.slice(0, 8).map((page, i) => (
+                        <div key={i} className="flex items-center justify-between py-2 border-b border-midnight-800 last:border-0">
+                          <span className="text-sm text-midnight-300 truncate max-w-[180px]" title={page.path}>
+                            {page.path}
+                          </span>
+                          <span className="text-sm font-bold text-camp-400">{page.views}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Countries */}
+                  <div className="p-6 rounded-xl bg-midnight-800/30 border border-midnight-700">
+                    <h3 className="font-semibold mb-4">🌍 Countries</h3>
+                    <div className="space-y-2">
+                      {analytics.countries.slice(0, 8).map((country, i) => (
+                        <div key={i} className="flex items-center justify-between py-2 border-b border-midnight-800 last:border-0">
+                          <span className="text-sm">
+                            {getCountryFlag(country.country)} {country.country}
+                          </span>
+                          <span className="text-sm font-bold">{country.users}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Devices */}
+                  <div className="p-6 rounded-xl bg-midnight-800/30 border border-midnight-700">
+                    <h3 className="font-semibold mb-4">📱 Devices</h3>
+                    <div className="space-y-4">
+                      {analytics.devices.map((device, i) => {
+                        const total = analytics.devices.reduce((sum, d) => sum + d.users, 0)
+                        const percentage = total > 0 ? (device.users / total) * 100 : 0
+                        const icon = device.device === 'desktop' ? '💻' : device.device === 'mobile' ? '📱' : '📱'
+                        return (
+                          <div key={i}>
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="text-sm">{icon} {device.device}</span>
+                              <span className="text-sm">{percentage.toFixed(1)}%</span>
+                            </div>
+                            <div className="bg-midnight-800 rounded-full h-3 overflow-hidden">
+                              <div
+                                className="h-full bg-camp-500 rounded-full"
+                                style={{ width: `${percentage}%` }}
+                              />
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="p-12 rounded-xl bg-midnight-800/30 border border-midnight-700 text-center">
+                {analyticsLoading ? (
+                  <div className="flex items-center justify-center gap-3">
+                    <div className="w-6 h-6 border-2 border-camp-500 border-t-transparent rounded-full animate-spin"></div>
+                    <span className="text-midnight-400">Loading analytics...</span>
+                  </div>
+                ) : (
+                  <>
+                    <p className="text-midnight-400 mb-2">Failed to load analytics data</p>
+                    <button onClick={fetchAnalytics} className="text-camp-400 hover:underline text-sm">
+                      Try again
+                    </button>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Overview Tab */}
         {activeTab === 'overview' && (
@@ -296,7 +573,7 @@ export default function AdminPage() {
                       <div key={i} className="flex items-center gap-3">
                         <div className="w-24 text-sm truncate">{source.source}</div>
                         <div className="flex-1 bg-midnight-800 rounded-full h-4 overflow-hidden">
-                          <div 
+                          <div
                             className="h-full bg-camp-500/50 rounded-full"
                             style={{ width: `${width}%` }}
                           />
@@ -408,7 +685,7 @@ export default function AdminPage() {
                           <span className="text-sm font-bold text-camp-400">{source.count}</span>
                         </div>
                         <div className="bg-midnight-800 rounded-full h-3 overflow-hidden">
-                          <div 
+                          <div
                             className="h-full bg-gradient-to-r from-camp-500 to-camp-400 rounded-full transition-all"
                             style={{ width: `${width}%` }}
                           />
@@ -432,7 +709,7 @@ export default function AdminPage() {
                   <p className="text-midnight-500 text-xs">of all signups</p>
                 </div>
               </div>
-              
+
               <div className="mt-6 p-4 bg-midnight-800 rounded-lg">
                 <p className="text-midnight-400 text-sm mb-2">Users with GCLID:</p>
                 <div className="space-y-2">
