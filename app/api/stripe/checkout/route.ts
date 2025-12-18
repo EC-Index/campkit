@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
       cancel_url: `${process.env.NEXTAUTH_URL}/#pricing`,
       customer_email: session.user.email,
       metadata: {
-        userId: session.user.id || '',
+        userId: session.user.email || '',
         plan,
         currency: validCurrency,
       },
