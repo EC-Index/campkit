@@ -123,6 +123,10 @@ export default function AdminPage() {
   const [clickDetails, setClickDetails] = useState<ClickDetails | null>(null)
   const [clickDetailsLoading, setClickDetailsLoading] = useState(false)
   const [showClickModal, setShowClickModal] = useState(false)
+  
+  // Moderation state
+  const [moderating, setModerating] = useState(false)
+  const [moderationMessage, setModerationMessage] = useState<string | null>(null)
 
   useEffect(() => {
     fetchAdminData()
@@ -196,6 +200,39 @@ export default function AdminPage() {
       console.error('Failed to fetch click details:', err)
     } finally {
       setClickDetailsLoading(false)
+    }
+  }
+
+  const handleModeration = async (action: string, params: any) => {
+    if (!confirm(`Are you sure you want to ${action.replace('_', ' ')}?`)) return
+    
+    setModerating(true)
+    setModerationMessage(null)
+    
+    try {
+      const res = await fetch('/api/admin/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action, ...params })
+      })
+      
+      const data = await res.json()
+      
+      if (res.ok) {
+        setModerationMessage(`✅ ${data.message}`)
+        // Refresh data after moderation
+        fetchAdminData()
+        // Close modal after successful deletion
+        if (action === 'delete_user' || action === 'delete_link') {
+          setTimeout(() => setShowClickModal(false), 1500)
+        }
+      } else {
+        setModerationMessage(`❌ Error: ${data.error}`)
+      }
+    } catch (err) {
+      setModerationMessage('❌ Failed to execute action')
+    } finally {
+      setModerating(false)
     }
   }
 
@@ -858,6 +895,70 @@ export default function AdminPage() {
                       </ul>
                     </div>
                   )}
+
+                  {/* Moderation Message */}
+                  {moderationMessage && (
+                    <div className={`p-3 rounded-lg text-sm ${moderationMessage.startsWith('✅') ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
+                      {moderationMessage}
+                    </div>
+                  )}
+
+                  {/* Moderation Actions */}
+                  <div className="p-4 bg-red-500/10 border border-red-500/30 rounded-xl">
+                    <h3 className="font-semibold mb-3 text-red-400">🛡️ Moderation Actions</h3>
+                    <div className="flex flex-wrap gap-2">
+                      <button
+                        onClick={() => handleModeration('delete_link', { 
+                          shortCode: clickDetails.link.short_code,
+                          reason: 'Suspicious bot traffic'
+                        })}
+                        disabled={moderating}
+                        className="px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-sm rounded-lg disabled:opacity-50 transition-colors"
+                      >
+                        🗑️ Delete Link
+                      </button>
+                      <button
+                        onClick={() => handleModeration('delete_user', { 
+                          email: clickDetails.link.user_email,
+                          reason: 'Bot/Scam account'
+                        })}
+                        disabled={moderating}
+                        className="px-3 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 text-sm rounded-lg disabled:opacity-50 transition-colors"
+                      >
+                        🚫 Delete User & All Data
+                      </button>
+                      {clickDetails.botAnalysis.suspiciousIPs.map((ip, i) => (
+                        <button
+                          key={i}
+                          onClick={() => handleModeration('block_ip', { 
+                            ip: ip.ip_address,
+                            reason: `High click count: ${ip.count}`
+                          })}
+                          disabled={moderating}
+                          className="px-3 py-2 bg-orange-500/20 hover:bg-orange-500/30 text-orange-400 text-sm rounded-lg disabled:opacity-50 transition-colors"
+                        >
+                          🔒 Block IP {ip.ip_address}
+                        </button>
+                      ))}
+                      {clickDetails.botAnalysis.suspiciousIPs.length > 0 && (
+                        <button
+                          onClick={() => handleModeration('delete_clicks_by_ip', { 
+                            ip: clickDetails.botAnalysis.suspiciousIPs[0].ip_address
+                          })}
+                          disabled={moderating}
+                          className="px-3 py-2 bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-400 text-sm rounded-lg disabled:opacity-50 transition-colors"
+                        >
+                          🧹 Delete Clicks from {clickDetails.botAnalysis.suspiciousIPs[0].ip_address}
+                        </button>
+                      )}
+                    </div>
+                    {moderating && (
+                      <div className="mt-2 flex items-center gap-2 text-sm text-midnight-400">
+                        <div className="w-4 h-4 border-2 border-camp-500 border-t-transparent rounded-full animate-spin"></div>
+                        Processing...
+                      </div>
+                    )}
+                  </div>
 
                   {/* Overview Stats */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
