@@ -31,9 +31,10 @@ function getRateLimit(ip: string): { allowed: boolean; remaining: number } {
 let requestCount = 0
 function cleanupRateLimitMap() {
   requestCount++
-  if (requestCount % 100 === 0) {
+ if (requestCount % 100 === 0) {
     const now = Date.now()
-    for (const [ip, record] of rateLimitMap.entries()) {
+    const entries = Array.from(rateLimitMap.entries())
+    for (const [ip, record] of entries) {
       if (now > record.resetTime) {
         rateLimitMap.delete(ip)
       }
