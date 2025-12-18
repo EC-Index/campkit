@@ -4,6 +4,7 @@ import './globals.css'
 import { GoogleAnalytics } from '@/components/GoogleAnalytics'
 import { Providers } from './providers'
 import Script from 'next/script'
+import { headers } from 'next/headers'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -61,11 +62,15 @@ export const metadata: Metadata = {
   manifest: '/site.webmanifest',
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
+  // Get country from Vercel's geo headers
+  const headersList = await headers()
+  const country = headersList.get('x-vercel-ip-country') || ''
+
   return (
     <html lang="en" className={inter.variable}>
       <head>
@@ -86,7 +91,7 @@ export default function RootLayout({
       </head>
       <body className="font-sans antialiased bg-midnight-900 text-white">
         <GoogleAnalytics />
-        <Providers>
+        <Providers initialCountry={country}>
           {children}
         </Providers>
       </body>

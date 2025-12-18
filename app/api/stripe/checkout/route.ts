@@ -1,77 +1,70 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import Stripe from 'stripe'
+import { authOptions } from '@/lib/auth'
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
   apiVersion: '2023-10-16',
 })
 
-const PLANS = {
-  pro: {
-    name: 'CampKit Pro',
-    price: 900, // $9.00 in cents
-    description: 'Unlimited links, advanced analytics, custom domains',
+// Price IDs from Stripe - you need to create USD prices in Stripe Dashboard
+const PRICE_IDS = {
+  EUR: {
+    pro: process.env.STRIPE_PRICE_PRO_EUR!,
+    team: process.env.STRIPE_PRICE_TEAM_EUR!,
+    business: process.env.STRIPE_PRICE_BUSINESS_EUR!,
   },
-  team: {
-    name: 'CampKit Team',
-    price: 2900, // $29.00
-    description: 'Up to 5 team members, workspaces, API access',
-  },
-  business: {
-    name: 'CampKit Business',
-    price: 7900, // $79.00
-    description: 'Unlimited members, SSO, dedicated support',
+  USD: {
+    pro: process.env.STRIPE_PRICE_PRO_USD!,
+    team: process.env.STRIPE_PRICE_TEAM_USD!,
+    business: process.env.STRIPE_PRICE_BUSINESS_USD!,
   },
 }
 
-export async function POST(request: Request) {
+export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    
+
     if (!session?.user?.email) {
-      return NextResponse.json({ error: 'Please login first' }, { status: 401 })
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 })
     }
 
-    const { plan } = await request.json()
-    
-    if (!plan || !PLANS[plan as keyof typeof PLANS]) {
+    const { plan, currency = 'EUR' } = await req.json()
+
+    if (!['pro', 'team', 'business'].includes(plan)) {
       return NextResponse.json({ error: 'Invalid plan' }, { status: 400 })
     }
 
-    const selectedPlan = PLANS[plan as keyof typeof PLANS]
+    const validCurrency = currency === 'USD' ? 'USD' : 'EUR'
+    const priceId = PRICE_IDS[validCurrency][plan as keyof typeof PRICE_IDS.EUR]
+
+    if (!priceId) {
+      return NextResponse.json({ error: 'Price not configured' }, { status: 500 })
+    }
 
     const checkoutSession = await stripe.checkout.sessions.create({
-      payment_method_types: ['card'],
       mode: 'subscription',
-      customer_email: session.user.email,
+      payment_method_types: ['card'],
       line_items: [
         {
-          price_data: {
-            currency: 'usd',
-            product_data: {
-              name: selectedPlan.name,
-              description: selectedPlan.description,
-            },
-            unit_amount: selectedPlan.price,
-            recurring: {
-              interval: 'month',
-            },
-          },
+          price: priceId,
           quantity: 1,
         },
       ],
       success_url: `${process.env.NEXTAUTH_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
       cancel_url: `${process.env.NEXTAUTH_URL}/#pricing`,
+      customer_email: session.user.email,
       metadata: {
-        userId: (session.user as any).id,
-        plan: plan,
+        userId: session.user.id || '',
+        plan,
+        currency: validCurrency,
       },
+      allow_promotion_codes: true,
     })
 
     return NextResponse.json({ url: checkoutSession.url })
   } catch (error) {
-    console.error('Stripe checkout error:', error)
-    return NextResponse.json({ error: 'Failed to create checkout' }, { status: 500 })
+    console.error('Checkout error:', error)
+    return NextResponse.json({ error: 'Failed to create checkout session' }, { status: 500 })
   }
 }

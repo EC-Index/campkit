@@ -1,11 +1,20 @@
 'use client'
 
 import { SessionProvider } from 'next-auth/react'
+import { CurrencyProvider } from '@/components/CurrencyContext'
 
-export function Providers({ children }: { children: React.ReactNode }) {
+export function Providers({ 
+  children,
+  initialCountry 
+}: { 
+  children: React.ReactNode
+  initialCountry?: string 
+}) {
   return (
     <SessionProvider>
-      {children}
+      <CurrencyProvider initialCountry={initialCountry}>
+        {children}
+      </CurrencyProvider>
     </SessionProvider>
   )
 }
