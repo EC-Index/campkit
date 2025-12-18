@@ -3,7 +3,7 @@ import Image from 'next/image'
 
 export const metadata = {
   title: 'Terms of Service | CampKit',
-  description: 'Terms of Service for CampKit - Terms and conditions for using our service',
+  description: 'Terms of Service for CampKit - UTM Link Builder & Campaign Tracking',
 }
 
 export default function Terms() {
@@ -18,7 +18,7 @@ export default function Terms() {
           <div className="flex items-center gap-4">
             <Link href="/login" className="text-midnight-400 hover:text-white text-sm hidden sm:block">Login</Link>
             <Link href="/signup" className="px-5 py-2.5 bg-camp-500 hover:bg-camp-400 text-midnight-900 font-semibold rounded-lg transition-all hover:scale-105">
-              Start Free →
+              Get Started Free →
             </Link>
           </div>
         </div>
@@ -28,163 +28,138 @@ export default function Terms() {
       <main className="pt-32 pb-20 px-6">
         <div className="max-w-3xl mx-auto">
           <h1 className="font-display text-4xl font-bold mb-8">Terms of Service</h1>
-          
+
           <div className="prose prose-invert prose-midnight max-w-none space-y-8 text-midnight-300">
-            
+
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 1 Scope</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">1. Acceptance of Terms</h2>
               <p>
-                (1) These Terms of Service (hereinafter "Terms") apply to all contracts between Thomas Kiene, Im Roggesch 10c, 49635 Badbergen, Germany (hereinafter "Provider") and the customer (hereinafter "Customer") regarding the use of the software-as-a-service solution "CampKit" (hereinafter "Service").
+                By accessing or using CampKit ("Service"), you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you may not use the Service.
               </p>
               <p className="mt-2">
-                (2) Deviating, conflicting, or supplementary general terms and conditions of the Customer shall not become part of the contract unless their validity is expressly agreed to in writing.
+                CampKit is operated by Thomas Kiene, Im Roggesch 10c, 49635 Badbergen, Germany ("Provider").
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 2 Subject Matter</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">2. Description of Service</h2>
               <p>
-                (1) The Provider provides the Customer with a web-based software for creating and managing UTM links as well as for creating short links via the Internet.
+                CampKit provides a web-based platform for creating and managing UTM-tagged marketing links and short URLs. The specific features available depend on your subscription plan.
               </p>
               <p className="mt-2">
-                (2) The Service includes different features depending on the selected plan. The exact scope of services is shown in the current pricing overview on the website.
-              </p>
-              <p className="mt-2">
-                (3) The Provider is entitled to expand, modify, and adapt the Service at any time, provided this is reasonable for the Customer.
+                The Provider reserves the right to modify, expand, or discontinue any part of the Service at any time.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 3 Contract Formation and Registration</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">3. Account Registration</h2>
               <p>
-                (1) The presentation of the Service on the website does not constitute a legally binding offer but an invitation to place an order.
+                (1) You must provide accurate and complete information when creating an account.
               </p>
               <p className="mt-2">
-                (2) By registering, the Customer makes a binding offer to enter into a usage contract. The contract is concluded when the Provider confirms the registration by activating the customer account.
+                (2) You are responsible for maintaining the security of your account credentials.
               </p>
               <p className="mt-2">
-                (3) The Customer warrants that all data provided during registration is truthful and complete.
+                (3) You are responsible for all activities that occur under your account.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 4 Plans and Pricing</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">4. Pricing and Payment</h2>
               <p>
-                (1) The Service is offered in various plans: Free, Pro, Team, and Business. The current scope of services and prices are shown in the pricing overview on the website.
+                (1) The Service is offered in various plans: Free, Pro, Team, and Business. Current pricing is available on our website.
               </p>
               <p className="mt-2">
-                (2) All prices are net prices plus applicable value-added tax.
+                (2) Payments are processed through Stripe. By subscribing, you also agree to Stripe's terms of service.
               </p>
               <p className="mt-2">
-                (3) The Provider reserves the right to change prices with a notice period of 30 days. Price increases only apply to new billing periods.
+                (3) Prices may change with 30 days notice. Price changes apply only to new billing periods.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 5 Payment Terms</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">5. Prohibited Uses and Abuse Policy</h2>
               <p>
-                (1) Payment is made monthly or annually in advance, at the Customer's choice.
+                You agree not to use the Service for any unlawful purpose. <strong className="text-red-400">The following uses are strictly prohibited:</strong>
               </p>
-              <p className="mt-2">
-                (2) Billing is processed through the payment service provider Stripe. Stripe's terms of use also apply.
-              </p>
-              <p className="mt-2">
-                (3) In the event of default in payment, the Provider is entitled to block access to the Service until the outstanding amounts have been paid.
-              </p>
-            </section>
-
-            <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 6 Customer Obligations</h2>
-              <p>
-                (1) The Customer undertakes to keep their access data secret and to protect it from access by third parties.
-              </p>
-              <p className="mt-2">
-                (2) The Customer undertakes not to misuse the Service, in particular not to use it:
-              </p>
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>for illegal purposes</li>
-                <li>to distribute spam</li>
-                <li>to distribute malware or phishing links</li>
-                <li>to infringe the rights of third parties</li>
-                <li>to overload the server infrastructure</li>
+              <ul className="list-disc list-inside mt-2 space-y-2">
+                <li><strong>Fraud and Scams:</strong> Creating links to fraudulent websites, fake giveaways, Ponzi schemes, or any other deceptive practices</li>
+                <li><strong>Phishing:</strong> Creating links to pages that steal personal data, passwords, credit card information, or cryptocurrency</li>
+                <li><strong>Malware:</strong> Distributing viruses, trojans, ransomware, or other malicious software</li>
+                <li><strong>Spam:</strong> Sending unsolicited bulk messages or advertisements</li>
+                <li><strong>Illegal Content:</strong> Links to illegal downloads, child abuse material, terrorism, or violence</li>
+                <li><strong>Copyright Infringement:</strong> Links to pirated content</li>
+                <li><strong>Identity Theft:</strong> Impersonating other individuals or brands</li>
+                <li><strong>Infrastructure Abuse:</strong> Bot traffic, automated mass-clicking, or DDoS-like activities</li>
               </ul>
+              <p className="mt-4">
+                <strong className="text-white">The Provider reserves the right to delete links and accounts that violate these terms without prior notice and without refund.</strong> Serious violations may be reported to law enforcement authorities.
+              </p>
               <p className="mt-2">
-                (3) The Customer is solely responsible for all content and links they create through the Service.
+                Suspicious activities are automatically detected and logged. IP addresses and usage data are stored in cases of abuse and may be shared with law enforcement.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 7 Availability</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">6. Abuse Reporting</h2>
               <p>
-                (1) The Provider strives for an availability of the Service of 99% on an annual average.
+                (1) Reports of abusive links can be sent to <a href="mailto:abuse@getcampkit.com" className="text-camp-400 hover:underline">abuse@getcampkit.com</a>.
               </p>
               <p className="mt-2">
-                (2) Times when the Service is not accessible due to technical or other problems beyond the Provider's control are not included in the calculation.
+                (2) The Provider will review reported links within 24 hours and remove any content that violates these Terms.
               </p>
               <p className="mt-2">
-                (3) Planned maintenance work will be announced in advance and will take place outside normal business hours whenever possible.
+                (3) The Provider cooperates fully with law enforcement in investigating fraud and phishing cases.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 8 Liability</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">7. Limitation of Liability</h2>
               <p>
-                (1) The Provider shall be liable without limitation for damages resulting from injury to life, body, or health, as well as for intent and gross negligence.
+                (1) The Provider is not liable for any content created by users through the Service.
               </p>
               <p className="mt-2">
-                (2) In the case of slight negligence, the Provider shall only be liable for breach of a material contractual obligation. In this case, liability is limited to the foreseeable, typically occurring damage.
+                (2) You agree to indemnify and hold the Provider harmless from any claims arising from your use of the Service.
               </p>
               <p className="mt-2">
-                (3) The Provider shall not be liable for lost profits, data loss, or other indirect damages.
-              </p>
-              <p className="mt-2">
-                (4) The Provider shall not be liable for content created or distributed by the Customer or third parties through the Service.
+                (3) The Provider's liability is limited to the amount paid by you for the Service in the 12 months preceding the claim.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 9 Contract Duration and Termination</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">8. Termination</h2>
               <p>
-                (1) The free plan (Free) can be terminated at any time without giving reasons.
+                (1) Free accounts may be terminated at any time.
               </p>
               <p className="mt-2">
-                (2) Paid plans can be terminated at the end of the respective billing month for monthly payments, or at the end of the billing year for annual payments.
+                (2) Paid subscriptions may be cancelled at the end of the current billing period.
               </p>
               <p className="mt-2">
-                (3) The right to extraordinary termination for good cause remains unaffected.
+                (3) The Provider may terminate accounts that violate these Terms immediately without refund.
               </p>
               <p className="mt-2">
-                (4) After termination of the contract, the Customer's data will be deleted after a period of 30 days, unless legal retention obligations exist.
+                (4) Upon termination, your data will be deleted after 30 days unless required by law.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 10 Data Protection</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">9. Privacy</h2>
               <p>
-                The processing of personal data is carried out in accordance with our Privacy Policy, which is available at <Link href="/privacy" className="text-camp-400 hover:underline">/privacy</Link>.
+                Your use of the Service is also governed by our <Link href="/privacy" className="text-camp-400 hover:underline">Privacy Policy</Link>.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 11 Changes to the Terms</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">10. Changes to Terms</h2>
               <p>
-                (1) The Provider reserves the right to change these Terms, provided this is reasonable for the Customer.
-              </p>
-              <p className="mt-2">
-                (2) Changes will be communicated to the Customer by email at least 30 days before they take effect. If the Customer does not object within 30 days of receipt of the change notification, the changes shall be deemed approved.
+                We may modify these Terms at any time. Changes will be communicated via email at least 30 days before taking effect.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 12 Final Provisions</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">11. Governing Law</h2>
               <p>
-                (1) The law of the Federal Republic of Germany shall apply, excluding the UN Convention on Contracts for the International Sale of Goods.
-              </p>
-              <p className="mt-2">
-                (2) The place of jurisdiction for all disputes shall be the Provider's place of business, to the extent permitted by law.
-              </p>
-              <p className="mt-2">
-                (3) Should individual provisions of these Terms be or become invalid, the validity of the remaining provisions shall remain unaffected.
+                These Terms are governed by the laws of the Federal Republic of Germany. The place of jurisdiction is the Provider's registered office.
               </p>
             </section>
 
@@ -204,6 +179,7 @@ export default function Terms() {
             <Link href="/privacy" className="hover:text-white transition-colors">Privacy</Link>
             <Link href="/terms" className="hover:text-white transition-colors">Terms</Link>
             <a href="mailto:service@getcampkit.com" className="hover:text-white transition-colors">Support</a>
+            <a href="mailto:abuse@getcampkit.com" className="text-red-400 hover:text-red-300 transition-colors">Report Abuse</a>
           </div>
           <p className="text-midnight-500 text-sm">© 2024 CampKit. Made in Germany 🇩🇪</p>
         </div>

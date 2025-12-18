@@ -28,9 +28,9 @@ export default function AGB() {
       <main className="pt-32 pb-20 px-6">
         <div className="max-w-3xl mx-auto">
           <h1 className="font-display text-4xl font-bold mb-8">Allgemeine Geschäftsbedingungen</h1>
-          
+
           <div className="prose prose-invert prose-midnight max-w-none space-y-8 text-midnight-300">
-            
+
             <section>
               <h2 className="text-xl font-semibold text-white mb-4">§ 1 Geltungsbereich</h2>
               <p>
@@ -94,27 +94,49 @@ export default function AGB() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 6 Pflichten des Kunden</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">§ 6 Pflichten des Kunden und verbotene Nutzung</h2>
               <p>
                 (1) Der Kunde verpflichtet sich, seine Zugangsdaten geheim zu halten und vor dem Zugriff Dritter zu schützen.
               </p>
               <p className="mt-2">
-                (2) Der Kunde verpflichtet sich, den Service nicht missbräuchlich zu nutzen, insbesondere nicht:
+                (2) Der Kunde verpflichtet sich, den Service nicht missbräuchlich zu nutzen. Insbesondere ist es <strong className="text-red-400">streng untersagt</strong>, den Service zu nutzen für:
               </p>
               <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>für rechtswidrige Zwecke</li>
-                <li>zur Verbreitung von Spam</li>
-                <li>zur Verbreitung von Malware oder Phishing-Links</li>
-                <li>zur Verletzung von Rechten Dritter</li>
-                <li>zur Überlastung der Serverinfrastruktur</li>
+                <li><strong>Betrug und Scam:</strong> Erstellung von Links zu betrügerischen Websites, Fake-Gewinnspielen, Ponzi-Schemata oder anderen Betrugsmaschen</li>
+                <li><strong>Phishing:</strong> Erstellung von Links zu Seiten, die persönliche Daten, Passwörter, Kreditkarteninformationen oder Kryptowährungen stehlen</li>
+                <li><strong>Malware:</strong> Verbreitung von Viren, Trojanern, Ransomware oder anderer Schadsoftware</li>
+                <li><strong>Spam:</strong> Massenversand unerwünschter Nachrichten oder Werbung</li>
+                <li><strong>Illegale Inhalte:</strong> Links zu illegalen Downloads, Kindesmissbrauch, Terrorismus oder Gewaltverherrlichung</li>
+                <li><strong>Urheberrechtsverletzungen:</strong> Links zu raubkopierten Inhalten</li>
+                <li><strong>Identitätsdiebstahl:</strong> Vortäuschung falscher Identitäten oder Marken</li>
+                <li><strong>Überlastung der Infrastruktur:</strong> Bot-Traffic, automatisierte Massenklicks oder DDoS-ähnliche Aktivitäten</li>
               </ul>
+              <p className="mt-4">
+                (3) Der Kunde ist für alle Inhalte und Links, die er über den Service erstellt, selbst verantwortlich und stellt den Anbieter von allen Ansprüchen Dritter frei.
+              </p>
               <p className="mt-2">
-                (3) Der Kunde ist für alle Inhalte und Links, die er über den Service erstellt, selbst verantwortlich.
+                (4) <strong className="text-white">Der Anbieter behält sich das Recht vor, Links und Benutzerkonten, die gegen diese Bestimmungen verstoßen, ohne Vorwarnung und ohne Erstattung zu löschen.</strong> Bei schwerwiegenden Verstößen kann eine Anzeige bei den zuständigen Behörden erfolgen.
+              </p>
+              <p className="mt-2">
+                (5) Verdächtige Aktivitäten werden automatisch erkannt und protokolliert. IP-Adressen und Nutzungsdaten werden bei Missbrauch gespeichert und können an Strafverfolgungsbehörden weitergegeben werden.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 7 Verfügbarkeit</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">§ 7 Missbrauchsmeldungen</h2>
+              <p>
+                (1) Meldungen über missbräuchliche Links können an <a href="mailto:abuse@getcampkit.com" className="text-camp-400 hover:underline">abuse@getcampkit.com</a> gesendet werden.
+              </p>
+              <p className="mt-2">
+                (2) Der Anbieter wird gemeldete Links innerhalb von 24 Stunden prüfen und bei Verstoß gegen diese AGB unverzüglich entfernen.
+              </p>
+              <p className="mt-2">
+                (3) Der Anbieter kooperiert vollständig mit Strafverfolgungsbehörden bei der Untersuchung von Betrugs- und Phishing-Fällen.
+              </p>
+            </section>
+
+            <section>
+              <h2 className="text-xl font-semibold text-white mb-4">§ 8 Verfügbarkeit</h2>
               <p>
                 (1) Der Anbieter bemüht sich um eine Verfügbarkeit des Services von 99% im Jahresmittel.
               </p>
@@ -127,7 +149,7 @@ export default function AGB() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 8 Haftung</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">§ 9 Haftung</h2>
               <p>
                 (1) Der Anbieter haftet unbeschränkt für Schäden aus der Verletzung des Lebens, des Körpers oder der Gesundheit sowie für Vorsatz und grobe Fahrlässigkeit.
               </p>
@@ -138,12 +160,12 @@ export default function AGB() {
                 (3) Der Anbieter haftet nicht für entgangenen Gewinn, Datenverlust oder sonstige mittelbare Schäden.
               </p>
               <p className="mt-2">
-                (4) Der Anbieter haftet nicht für Inhalte, die vom Kunden oder Dritten über den Service erstellt oder verbreitet werden.
+                (4) Der Anbieter haftet nicht für Inhalte, die vom Kunden oder Dritten über den Service erstellt oder verbreitet werden. Der Kunde stellt den Anbieter von allen Ansprüchen Dritter frei, die aufgrund der vom Kunden erstellten Inhalte geltend gemacht werden.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 9 Vertragslaufzeit und Kündigung</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">§ 10 Vertragslaufzeit und Kündigung</h2>
               <p>
                 (1) Der kostenlose Tarif (Free) kann jederzeit ohne Angabe von Gründen gekündigt werden.
               </p>
@@ -151,7 +173,7 @@ export default function AGB() {
                 (2) Kostenpflichtige Tarife können bei monatlicher Zahlung zum Ende des jeweiligen Abrechnungsmonats, bei jährlicher Zahlung zum Ende des Abrechnungsjahres gekündigt werden.
               </p>
               <p className="mt-2">
-                (3) Das Recht zur außerordentlichen Kündigung aus wichtigem Grund bleibt unberührt.
+                (3) Das Recht zur außerordentlichen Kündigung aus wichtigem Grund bleibt unberührt. Ein wichtiger Grund liegt insbesondere vor, wenn der Kunde gegen § 6 dieser AGB verstößt.
               </p>
               <p className="mt-2">
                 (4) Nach Beendigung des Vertrags werden die Daten des Kunden nach einer Frist von 30 Tagen gelöscht, sofern keine gesetzlichen Aufbewahrungspflichten bestehen.
@@ -159,14 +181,14 @@ export default function AGB() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 10 Datenschutz</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">§ 11 Datenschutz</h2>
               <p>
                 Die Verarbeitung personenbezogener Daten erfolgt gemäß unserer Datenschutzerklärung, die unter <Link href="/datenschutz" className="text-camp-400 hover:underline">/datenschutz</Link> abrufbar ist.
               </p>
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 11 Änderung der AGB</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">§ 12 Änderung der AGB</h2>
               <p>
                 (1) Der Anbieter behält sich vor, diese AGB zu ändern, soweit dies für den Kunden zumutbar ist.
               </p>
@@ -176,7 +198,7 @@ export default function AGB() {
             </section>
 
             <section>
-              <h2 className="text-xl font-semibold text-white mb-4">§ 12 Schlussbestimmungen</h2>
+              <h2 className="text-xl font-semibold text-white mb-4">§ 13 Schlussbestimmungen</h2>
               <p>
                 (1) Es gilt das Recht der Bundesrepublik Deutschland unter Ausschluss des UN-Kaufrechts.
               </p>
@@ -204,6 +226,7 @@ export default function AGB() {
             <Link href="/datenschutz" className="hover:text-white transition-colors">Datenschutz</Link>
             <Link href="/agb" className="hover:text-white transition-colors">AGB</Link>
             <a href="mailto:service@getcampkit.com" className="hover:text-white transition-colors">Support</a>
+            <a href="mailto:abuse@getcampkit.com" className="text-red-400 hover:text-red-300 transition-colors">Missbrauch melden</a>
           </div>
           <p className="text-midnight-500 text-sm">© 2024 CampKit. Made in Germany 🇩🇪</p>
         </div>
