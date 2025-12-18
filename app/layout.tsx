@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google'
 import './globals.css'
 import { GoogleAnalytics } from '@/components/GoogleAnalytics'
 import { Providers } from './providers'
+import Script from 'next/script'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -70,6 +71,18 @@ export default function RootLayout({
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=AW-17256836304"
+          strategy="afterInteractive"
+        />
+        <Script id="google-ads" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'AW-17256836304');
+          `}
+        </Script>
       </head>
       <body className="font-sans antialiased bg-midnight-900 text-white">
         <GoogleAnalytics />
