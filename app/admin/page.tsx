@@ -73,6 +73,32 @@ type AnalyticsData = {
   period: number
 }
 
+type ClickDetails = {
+  link: any
+  totalClicks: number
+  uniqueIPs: number
+  clicksPerIP: string
+  clicks: any[]
+  stats: {
+    countries: { country: string; count: number }[]
+    ips: { ip_address: string; count: number }[]
+    referers: { referer: string; count: number }[]
+    devices: { device: string; count: number }[]
+    hourly: { hour: string; count: number }[]
+    daily: { date: string; count: number }[]
+  }
+  botAnalysis: {
+    isSuspicious: boolean
+    indicators: {
+      highClicksPerIP: boolean
+      sameIPHeavyUsage: boolean
+      noReferer: boolean
+      suspiciousUserAgents: number
+    }
+    suspiciousIPs: { ip_address: string; count: number }[]
+  }
+}
+
 export default function AdminPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
@@ -92,6 +118,11 @@ export default function AdminPage() {
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null)
   const [analyticsLoading, setAnalyticsLoading] = useState(false)
   const [analyticsPeriod, setAnalyticsPeriod] = useState(7)
+  
+  // Click details modal state
+  const [clickDetails, setClickDetails] = useState<ClickDetails | null>(null)
+  const [clickDetailsLoading, setClickDetailsLoading] = useState(false)
+  const [showClickModal, setShowClickModal] = useState(false)
 
   useEffect(() => {
     fetchAdminData()
@@ -146,6 +177,25 @@ export default function AdminPage() {
       console.error('Failed to fetch analytics:', err)
     } finally {
       setAnalyticsLoading(false)
+    }
+  }
+
+  const fetchClickDetails = async (shortCode: string) => {
+    setClickDetailsLoading(true)
+    setShowClickModal(true)
+    try {
+      const res = await fetch(`/api/admin/clicks?shortCode=${shortCode}`)
+      const data = await res.json()
+      
+      if (res.ok) {
+        setClickDetails(data)
+      } else {
+        console.error('Click details error:', data.error)
+      }
+    } catch (err) {
+      console.error('Failed to fetch click details:', err)
+    } finally {
+      setClickDetailsLoading(false)
     }
   }
 
@@ -741,6 +791,7 @@ export default function AdminPage() {
                     <th className="pb-3">Short Code</th>
                     <th className="pb-3">Clicks</th>
                     <th className="pb-3">Created</th>
+                    <th className="pb-3">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -752,10 +803,187 @@ export default function AdminPage() {
                       <td className="py-3 font-mono text-xs text-camp-400">{link.short_code || '-'}</td>
                       <td className="py-3 font-bold">{link.clicks}</td>
                       <td className="py-3 text-midnight-500 text-xs">{formatDate(link.created_at)}</td>
+                      <td className="py-3">
+                        {link.short_code && link.clicks > 0 && (
+                          <button
+                            onClick={() => fetchClickDetails(link.short_code!)}
+                            className="px-2 py-1 bg-camp-500/20 text-camp-400 text-xs rounded hover:bg-camp-500/30 transition-colors"
+                          >
+                            🔍 Analyze
+                          </button>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        )}
+
+        {/* Click Details Modal */}
+        {showClickModal && (
+          <div className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onClick={() => setShowClickModal(false)}>
+            <div className="bg-midnight-900 border border-midnight-700 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+              <div className="sticky top-0 bg-midnight-900 border-b border-midnight-700 p-4 flex items-center justify-between">
+                <h2 className="text-xl font-bold">
+                  🔍 Click Analysis: {clickDetails?.link?.short_code || 'Loading...'}
+                </h2>
+                <button onClick={() => setShowClickModal(false)} className="text-midnight-400 hover:text-white text-2xl">
+                  ×
+                </button>
+              </div>
+
+              {clickDetailsLoading ? (
+                <div className="p-8 text-center">
+                  <div className="w-8 h-8 border-2 border-camp-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-midnight-400">Loading click details...</p>
+                </div>
+              ) : clickDetails ? (
+                <div className="p-6 space-y-6">
+                  {/* Bot Alert */}
+                  {clickDetails.botAnalysis.isSuspicious && (
+                    <div className="p-4 bg-red-500/20 border border-red-500/50 rounded-xl">
+                      <h3 className="font-bold text-red-400 mb-2">⚠️ Suspicious Activity Detected</h3>
+                      <ul className="text-sm text-red-300 space-y-1">
+                        {clickDetails.botAnalysis.indicators.highClicksPerIP && (
+                          <li>• High clicks per IP ({clickDetails.clicksPerIP} avg)</li>
+                        )}
+                        {clickDetails.botAnalysis.indicators.sameIPHeavyUsage && (
+                          <li>• {clickDetails.botAnalysis.suspiciousIPs.length} IPs with 20+ clicks</li>
+                        )}
+                        {clickDetails.botAnalysis.indicators.suspiciousUserAgents > 0 && (
+                          <li>• {clickDetails.botAnalysis.indicators.suspiciousUserAgents} suspicious user agents</li>
+                        )}
+                      </ul>
+                    </div>
+                  )}
+
+                  {/* Overview Stats */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div className="p-4 bg-midnight-800/50 rounded-xl text-center">
+                      <p className="text-3xl font-bold text-camp-400">{clickDetails.totalClicks}</p>
+                      <p className="text-xs text-midnight-400">Total Clicks</p>
+                    </div>
+                    <div className="p-4 bg-midnight-800/50 rounded-xl text-center">
+                      <p className="text-3xl font-bold">{clickDetails.uniqueIPs}</p>
+                      <p className="text-xs text-midnight-400">Unique IPs</p>
+                    </div>
+                    <div className="p-4 bg-midnight-800/50 rounded-xl text-center">
+                      <p className="text-3xl font-bold">{clickDetails.clicksPerIP}</p>
+                      <p className="text-xs text-midnight-400">Clicks/IP</p>
+                    </div>
+                    <div className="p-4 bg-midnight-800/50 rounded-xl text-center">
+                      <p className="text-3xl font-bold">{clickDetails.stats.countries.length}</p>
+                      <p className="text-xs text-midnight-400">Countries</p>
+                    </div>
+                  </div>
+
+                  {/* Link Info */}
+                  <div className="p-4 bg-midnight-800/30 rounded-xl">
+                    <h3 className="font-semibold mb-2">Link Info</h3>
+                    <div className="text-sm space-y-1 text-midnight-300">
+                      <p><span className="text-midnight-500">User:</span> {clickDetails.link.user_email}</p>
+                      <p><span className="text-midnight-500">Destination:</span> <span className="break-all">{clickDetails.link.destination_url}</span></p>
+                      <p><span className="text-midnight-500">Campaign:</span> {clickDetails.link.utm_campaign || '-'}</p>
+                    </div>
+                  </div>
+
+                  {/* Stats Grid */}
+                  <div className="grid md:grid-cols-2 gap-6">
+                    {/* Top IPs */}
+                    <div className="p-4 bg-midnight-800/30 rounded-xl">
+                      <h3 className="font-semibold mb-3">🌐 Top IPs</h3>
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {clickDetails.stats.ips.slice(0, 10).map((ip, i) => (
+                          <div key={i} className="flex items-center justify-between text-sm">
+                            <span className={`font-mono ${Number(ip.count) > 20 ? 'text-red-400' : 'text-midnight-300'}`}>
+                              {ip.ip_address}
+                            </span>
+                            <span className={`font-bold ${Number(ip.count) > 20 ? 'text-red-400' : ''}`}>
+                              {ip.count} {Number(ip.count) > 20 && '⚠️'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Countries */}
+                    <div className="p-4 bg-midnight-800/30 rounded-xl">
+                      <h3 className="font-semibold mb-3">🌍 Countries</h3>
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {clickDetails.stats.countries.slice(0, 10).map((country, i) => (
+                          <div key={i} className="flex items-center justify-between text-sm">
+                            <span>{country.country || 'Unknown'}</span>
+                            <span className="font-bold">{country.count}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Referers */}
+                    <div className="p-4 bg-midnight-800/30 rounded-xl">
+                      <h3 className="font-semibold mb-3">🔗 Referers</h3>
+                      <div className="space-y-2 max-h-48 overflow-y-auto">
+                        {clickDetails.stats.referers.slice(0, 10).map((ref, i) => (
+                          <div key={i} className="flex items-center justify-between text-sm">
+                            <span className="truncate max-w-[200px]" title={ref.referer}>
+                              {ref.referer}
+                            </span>
+                            <span className="font-bold">{ref.count}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Devices */}
+                    <div className="p-4 bg-midnight-800/30 rounded-xl">
+                      <h3 className="font-semibold mb-3">📱 Devices</h3>
+                      <div className="space-y-2">
+                        {clickDetails.stats.devices.map((device, i) => (
+                          <div key={i} className="flex items-center justify-between text-sm">
+                            <span>{device.device || 'Unknown'}</span>
+                            <span className="font-bold">{device.count}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Recent Clicks Table */}
+                  <div className="p-4 bg-midnight-800/30 rounded-xl">
+                    <h3 className="font-semibold mb-3">📋 Recent Clicks (Last 100)</h3>
+                    <div className="overflow-x-auto max-h-64 overflow-y-auto">
+                      <table className="w-full text-xs">
+                        <thead className="sticky top-0 bg-midnight-800">
+                          <tr className="text-left text-midnight-400">
+                            <th className="p-2">Time</th>
+                            <th className="p-2">IP</th>
+                            <th className="p-2">Country</th>
+                            <th className="p-2">Device</th>
+                            <th className="p-2">Referer</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {clickDetails.clicks.slice(0, 50).map((click, i) => (
+                            <tr key={i} className="border-t border-midnight-700">
+                              <td className="p-2 text-midnight-400">{formatDate(click.clicked_at)}</td>
+                              <td className="p-2 font-mono">{click.ip_address}</td>
+                              <td className="p-2">{click.country || '-'}</td>
+                              <td className="p-2">{click.device || '-'}</td>
+                              <td className="p-2 truncate max-w-[150px]" title={click.referer}>{click.referer || 'Direct'}</td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className="p-8 text-center text-midnight-400">
+                  Failed to load click details
+                </div>
+              )}
             </div>
           </div>
         )}
