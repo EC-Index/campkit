@@ -394,7 +394,7 @@ export default function Home() {
 
           <div className="pt-8 border-t border-midnight-800 flex flex-col md:flex-row items-center justify-between gap-4">
             <p className="text-midnight-500 text-sm">
-              © 2024 CampKit. Made in Germany 🇩🇪
+              © 2025 CampKit. Made in Germany 🇩🇪
             </p>
             <div className="flex items-center gap-4 text-sm text-midnight-500">
               <Link href="/de" className="hover:text-white">Deutsch</Link>

@@ -163,7 +163,7 @@ export default function Terms() {
               </p>
             </section>
 
-            <p className="text-midnight-500 text-sm mt-12">Last updated: December 2024</p>
+            <p className="text-midnight-500 text-sm mt-12">Last updated: December 2025</p>
           </div>
         </div>
       </main>
@@ -181,7 +181,7 @@ export default function Terms() {
             <a href="mailto:service@getcampkit.com" className="hover:text-white transition-colors">Support</a>
             <a href="mailto:abuse@getcampkit.com" className="text-red-400 hover:text-red-300 transition-colors">Report Abuse</a>
           </div>
-          <p className="text-midnight-500 text-sm">© 2024 CampKit. Made in Germany 🇩🇪</p>
+          <p className="text-midnight-500 text-sm">© 2025 CampKit. Made in Germany 🇩🇪</p>
         </div>
       </footer>
     </div>
